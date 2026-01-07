@@ -1,7 +1,6 @@
-// src/components/ProtectedRoute.tsx
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // always import and call at top
+import { useAuth } from "../context/AuthContext";
 
 interface Props {
   children: React.ReactNode;
@@ -9,11 +8,18 @@ interface Props {
 }
 
 const ProtectedRoute: React.FC<Props> = ({ children, adminOnly = false }) => {
-  const { token, user, isAdmin } = useAuth(); // always called at top
+  const { token, isAdmin, authReady } = useAuth();
 
+  // ⏳ wait until auth initializes
+  if (!authReady) return null;
+
+  // 🔐 not logged in
   if (!token) return <Navigate to="/" replace />;
 
-  if (adminOnly && !isAdmin) return <Navigate to="/dashboard" replace />;
+  // 🔐 admin-only route
+  if (adminOnly && !isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return <>{children}</>;
 };

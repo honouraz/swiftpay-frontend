@@ -16,7 +16,10 @@ type AuthContextType = {
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
   isAdmin: boolean;
+  authReady: boolean;
 };
+
+const [authReady, setAuthReady] = useState(false);
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -34,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
 
   useEffect(() => {
+    setAuthReady(true);
     if (token) localStorage.setItem("swiftpay_token", token);
     else localStorage.removeItem("swiftpay_token");
   }, [token]);
@@ -76,8 +80,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       : false;
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, isAdmin }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider
+  value={{ user, token, login, register, logout, isAdmin, authReady }}
+>
+  {children}
+</AuthContext.Provider>
+
   );
 };

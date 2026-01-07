@@ -1,6 +1,5 @@
 // src/utils/api.ts
 import axios from "axios";
-import { useAuth } from "../context/AuthContext";
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://swiftpay-backend-djp0.onrender.com/api"
 const API = axios.create({
