@@ -25,8 +25,6 @@ const PayForSomeone: React.FC = () => {
   });
 
   const [loading, setLoading] = useState(false);
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://swiftpay-backend-djp0.onrender.com/api";
-
  useEffect(() => {
   if (!token) return;
 
@@ -56,19 +54,15 @@ const level = form.level; // e.g., "100", "200"
 
     setLoading(true);
     try {
-      const res = await API.post(
-        process.env.REACT_APP_API_BASE_URL || "${API_BASE_URL}/api/payments/paystack/initialize",
-        {
-          email: form.email || "temp@swiftpay.com",
-          dueId: form.dueId,        // ← THIS IS THE REAL _id FROM DB
-          level: form.level,        // ← 100, 200, etc
-          name: form.fullName,
-          matric: form.matricNumber,
-          department: form.department,
-          phone: form.phone,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await API.post("/payments/paystack/initialize", {
+  email: form.email || "temp@swiftpay.com",
+  dueId: form.dueId,
+  level: form.level,
+  name: form.fullName,
+  matric: form.matricNumber,
+  department: form.department,
+  phone: form.phone,
+});
 
       window.location.href = res.data.authorization_url || res.data.data.authorization_url;
     } catch (err: any) {
