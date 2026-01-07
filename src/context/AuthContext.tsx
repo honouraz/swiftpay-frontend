@@ -19,7 +19,6 @@ type AuthContextType = {
   authReady: boolean;
 };
 
-const [authReady, setAuthReady] = useState(false);
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -35,6 +34,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const raw = localStorage.getItem("swiftpay_user");
     return raw ? JSON.parse(raw) : null;
   });
+
+  const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
     setAuthReady(true);
