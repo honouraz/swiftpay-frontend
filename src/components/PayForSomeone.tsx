@@ -1,6 +1,6 @@
 // src/components/PayForSomeone.tsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import API from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
 interface Due {
@@ -25,11 +25,17 @@ const PayForSomeone: React.FC = () => {
   });
 
   const [loading, setLoading] = useState(false);
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://swiftpay-backend-djp0.onrender.com";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://swiftpay-backend-djp0.onrender.com/api";
 
-  useEffect(() => {
-    axios.get(process.env.REACT_APP_API_BASE_URL || "https://swiftpay-backend-djp0.onrender.com/api/dues").then(res => setDues(res.data));
-  }, []);
+ useEffect(() => {
+  if (!token) return;
+
+  API.get("/dues")
+    .then(res => setDues(res.data))
+    .catch(err => console.error("Failed to fetch dues", err));
+}, [token]);
+
+
 
   const selectedDue = dues.find(d => d._id === form.dueId);
 const level = form.level; // e.g., "100", "200"
@@ -50,8 +56,8 @@ const level = form.level; // e.g., "100", "200"
 
     setLoading(true);
     try {
-      const res = await axios.post(
-        process.env.REACT_APP_API_BASE_URL || "https://swiftpay-backend-djp0.onrender.com/api/payments/paystack/initialize",
+      const res = await API.post(
+        process.env.REACT_APP_API_BASE_URL || "${API_BASE_URL}/api/payments/paystack/initialize",
         {
           email: form.email || "temp@swiftpay.com",
           dueId: form.dueId,        // ← THIS IS THE REAL _id FROM DB

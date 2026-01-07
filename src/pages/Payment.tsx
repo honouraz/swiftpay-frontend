@@ -4,19 +4,20 @@ import API from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 
 const Payment = () => {
-  const { user } = useAuth();
+  const { user, token} = useAuth();
   const [dues, setDues] = useState<any[]>([]);
   const [selectedDue, setSelectedDue] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    API.get("/dues")
-      .then((res) => setDues(res.data))
-      .catch((err) => {
-        console.log(err);
-        alert("Failed to load dues");
-      });
-  }, []);
+
+useEffect(() => {
+  if (!token) return;
+
+  API.get("/dues")
+    .then(res => setDues(res.data))
+    .catch(() => alert("Failed to load dues"));
+}, [token]);
+
 
   const payNow = async () => {
     if (!selectedDue) return alert("Pick one due");
