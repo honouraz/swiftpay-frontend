@@ -75,7 +75,7 @@ const AdminDashboard: React.FC = () => {
   const [formData, setFormData] = useState<Due>(initialDue);
 
   const [showSubAdminModal, setShowSubAdminModal] = useState(false);
-  const [subAdminForm, setSubAdminForm] = useState({ name: "", email: "", password: "" });
+  const [subAdminForm, setSubAdminForm] = useState({ name: "", email: "", password: "", association: "" });
   const [matricSearch, setMatricSearch] = useState("");
 
   const loadDashboard = async () => {
@@ -139,12 +139,14 @@ const fetchData = async () => {
     return () => clearInterval(interval);
   }, [isAdmin, token]);
   // ===== FILTERS =====
-  const filteredPayments = useMemo(() => payments.filter(p =>
+  const filteredPayments = useMemo(() => payments.filter(p => 
+  p.status === "success" && (
     p.payerName?.toLowerCase().includes(paymentSearch.toLowerCase()) ||
     p.userEmail?.toLowerCase().includes(paymentSearch.toLowerCase()) ||
     p.metadata?.matricNumber?.toLowerCase().includes(paymentSearch.toLowerCase()) ||
     p.dueName?.toLowerCase().includes(paymentSearch.toLowerCase())
-  ), [payments, paymentSearch]);
+  )
+), [payments, paymentSearch]);
 
   const filteredDues = useMemo(() => dues.filter(d => d.name.toLowerCase().includes(dueSearch.toLowerCase())), [dues, dueSearch]);
   const filteredSubAdmins = useMemo(() => subAdmins.filter(sa =>
@@ -214,7 +216,7 @@ const totalExtraCharges = useMemo(
     try {
 const res = await API.post("/subadmin/create", subAdminForm);      setSubAdmins(prev => [...prev, res.data]);
       setShowSubAdminModal(false);
-      setSubAdminForm({ name: "", email: "", password: "" });
+      setSubAdminForm({ name: "", email: "", password: "", association: "" });
     } catch (err) { console.error(err); alert("Failed to create subadmin"); }
   };
 
@@ -484,31 +486,45 @@ const handleSubmit = async (e: React.FormEvent) => {
               className="px-6 py-3 bg-gradient-to-r from-[#F0AA22] to-[#F05822] rounded-xl font-rubik font-bold text-[#F9FBFD]">Add SubAdmin</button>
 
             {/* SUBADMIN MODAL */}
-            {showSubAdminModal && (
-              <div className="fixed inset-0 bg-[#063A4F]/50 flex items-center justify-center z-50">
-                <div className="bg-[#124458] p-8 rounded-2xl w-1/2 shadow-xl relative">
-                  <h2 className="text-3xl font-rubik font-bold mb-6">Add SubAdmin</h2>
-                  <form onSubmit={handleCreateSubAdmin} className="space-y-4">
-                    <div>
-                      <label className="block mb-1 font-oxygen">Name</label>
-                      <input type="text" name="name" value={subAdminForm.name} onChange={handleSubAdminInput} className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" required />
-                    </div>
-                    <div>
-                      <label className="block mb-1 font-oxygen">Email</label>
-                      <input type="email" name="email" value={subAdminForm.email} onChange={handleSubAdminInput} className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" required />
-                    </div>
-                    <div>
-                      <label className="block mb-1 font-oxygen">Password</label>
-                      <input type="password" name="password" value={subAdminForm.password} onChange={handleSubAdminInput} className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" required />
-                    </div>
-                    <div className="flex gap-4 mt-4">
-                      <button type="submit" className="px-6 py-3 bg-[#00B8C2] rounded-xl font-rubik font-bold text-[#F9FBFD]">Save</button>
-                      <button type="button" onClick={() => setShowSubAdminModal(false)} className="px-6 py-3 bg-[#F05822] rounded-xl font-rubik font-bold text-[#F9FBFD]">Cancel</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
+            {/* SUBADMIN MODAL */}
+{showSubAdminModal && (
+  <div className="fixed inset-0 bg-[#063A4F]/50 flex items-center justify-center z-50">
+    <div className="bg-[#124458] p-8 rounded-2xl w-1/2 shadow-xl relative">
+      <h2 className="text-3xl font-rubik font-bold mb-6">Add SubAdmin</h2>
+      <form onSubmit={handleCreateSubAdmin} className="space-y-4">
+        <div>
+          <label className="block mb-1 font-oxygen">Name</label>
+          <input type="text" name="name" value={subAdminForm.name} onChange={handleSubAdminInput} className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" required />
+        </div>
+        <div>
+          <label className="block mb-1 font-oxygen">Email</label>
+          <input type="email" name="email" value={subAdminForm.email} onChange={handleSubAdminInput} className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" required />
+        </div>
+        <div>
+          <label className="block mb-1 font-oxygen">Password</label>
+          <input type="password" name="password" value={subAdminForm.password} onChange={handleSubAdminInput} className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" required />
+        </div>
+        {/* NEW: Association field */}
+        <div>
+          <label className="block mb-1 font-oxygen">Association (e.g. NASS, SUG, ESAN)</label>
+          <input 
+            type="text" 
+            name="association" 
+            value={subAdminForm.association || ""} 
+            onChange={handleSubAdminInput} 
+            className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" 
+            required 
+            placeholder="NASS / SUG / ESAN / GENERAL"
+          />
+        </div>
+        <div className="flex gap-4 mt-4">
+          <button type="submit" className="px-6 py-3 bg-[#00B8C2] rounded-xl font-rubik font-bold text-[#F9FBFD]">Save</button>
+          <button type="button" onClick={() => setShowSubAdminModal(false)} className="px-6 py-3 bg-[#F05822] rounded-xl font-rubik font-bold text-[#F9FBFD]">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
           </motion.div>
         )}
 

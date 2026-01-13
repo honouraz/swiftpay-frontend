@@ -19,7 +19,7 @@ const PaymentSuccess: React.FC = () => {
 
     const downloadReceipt = () => {
       const link = document.createElement("a");
-      link.href = `${API_BASE_URL}/api/receipt-by-ref/${reference}`;
+      link.href = `${API_BASE_URL}/receipt-by-ref/${reference}`;
       link.download = `SwiftPay_Receipt_${reference}.pdf`;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
