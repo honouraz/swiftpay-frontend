@@ -54,7 +54,7 @@ const level = form.level; // e.g., "100", "200"
 
     setLoading(true);
     try {
-      const res = await API.post("/payments/flutterwave/initialize", {
+      const res = await API.post("/payments/paystack/initialize", {
   email: form.email || "temp@swiftpay.com",
   dueId: form.dueId,
   level: form.level,
@@ -65,13 +65,13 @@ const level = form.level; // e.g., "100", "200"
   gateway: "flutterwave",
 });
 
-window.location.href = res.data.paymentUrl || res.data.authorization_url; // Flutterwave uses paymentUrl
-  } catch (err: any) {
-    console.error(err.response?.data || err);
-    alert("Payment failed: " + (err.response?.data?.message || "Try again"));
-  } finally {
-    setLoading(false);
-  }
+      window.location.href = res.data.authorization_url || res.data.data.authorization_url;
+    } catch (err: any) {
+      console.error(err.response?.data || err);
+      alert("Payment failed: " + (err.response?.data?.message || "Try again"));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
