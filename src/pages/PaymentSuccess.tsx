@@ -36,7 +36,7 @@ const PaymentSuccess: React.FC = () => {
     // Optional verify (no harm)
     const verify = async () => {
       try {
-        await fetch(`${API_BASE_URL}/api/payments/paystack/verify/${reference}`);
+        await fetch(`${API_BASE_URL}/api/payments/flutterwave/verify/${reference}`);
       } catch {}
     };
     verify();
