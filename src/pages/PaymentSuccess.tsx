@@ -8,8 +8,10 @@ const PaymentSuccess: React.FC = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const reference = params.get("reference") || params.get("trxref");
-
+const reference = 
+    params.get("reference") ||          // Paystack
+    params.get("trxref") ||             // Flutterwave old
+    params.get("tx_ref");               // Flutterwave current
     if (!reference) {
       setMessage("No payment reference found");
       return;
