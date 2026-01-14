@@ -62,7 +62,6 @@ const level = form.level; // e.g., "100", "200"
   matric: form.matricNumber,
   department: form.department,
   phone: form.phone,
-  gateway: "flutterwave",
 });
 
       window.location.href = res.data.authorization_url || res.data.data.authorization_url;
