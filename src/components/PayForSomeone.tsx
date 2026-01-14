@@ -54,7 +54,7 @@ const level = form.level; // e.g., "100", "200"
 
     setLoading(true);
     try {
-      const res = await API.post("/payments/initialize", {
+      const res = await API.post("/payments/flutterwave/initialize", {
   email: form.email || "temp@swiftpay.com",
   dueId: form.dueId,
   level: form.level,
