@@ -210,8 +210,10 @@ const totalExtraCharges = useMemo(
   const handleEdit = (due: Due) => { setEditingDue(due); setFormData(due); setShowModal(true); };
   const handleDelete = async (id: string) => { if (!window.confirm("Are you sure?")) return; try { await API.delete(`/dues/${id}`); fetchData(); } catch (err) { console.error(err); } };
 
-  const handleSubAdminInput = (e: React.ChangeEvent<HTMLInputElement>) => { const { name, value } = e.target; setSubAdminForm(prev => ({ ...prev, [name]: value })); };
-  const handleCreateSubAdmin = async (e: React.FormEvent) => {
+const handleSubAdminInput = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const { name, value } = e.target;
+  setSubAdminForm(prev => ({ ...prev, [name]: value }));
+};  const handleCreateSubAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
 const res = await API.post("/subadmin/create", subAdminForm);      setSubAdmins(prev => [...prev, res.data]);
@@ -504,22 +506,33 @@ const handleSubmit = async (e: React.FormEvent) => {
           <label className="block mb-1 font-oxygen">Password</label>
           <input type="password" name="password" value={subAdminForm.password} onChange={handleSubAdminInput} className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" required />
         </div>
-        {/* NEW: Association field */}
+
+        {/* Dropdown for existing Dues/Associations */}
         <div>
-          <label className="block mb-1 font-oxygen">Association (e.g. NASS, SUG, ESAN)</label>
-          <input 
-            type="text" 
-            name="association" 
-            value={subAdminForm.association || ""} 
-            onChange={handleSubAdminInput} 
-            className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" 
-            required 
-            placeholder="NASS / SUG / ESAN / GENERAL"
-          />
+          <label className="block mb-1 font-oxygen">Association (Select Existing Due)</label>
+          <select
+            name="association"
+            value={subAdminForm.association || ""}
+            onChange={handleSubAdminInput}
+            className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD] border border-[#063A4F]/30 focus:border-[#FDB515]"
+            required
+          >
+            <option value="">Select Due / Association</option>
+            {dues.map((due) => (
+              <option key={due._id} value={due.name}>
+                {due.name}
+              </option>
+            ))}
+          </select>
         </div>
+
         <div className="flex gap-4 mt-4">
-          <button type="submit" className="px-6 py-3 bg-[#00B8C2] rounded-xl font-rubik font-bold text-[#F9FBFD]">Save</button>
-          <button type="button" onClick={() => setShowSubAdminModal(false)} className="px-6 py-3 bg-[#F05822] rounded-xl font-rubik font-bold text-[#F9FBFD]">Cancel</button>
+          <button type="submit" className="px-6 py-3 bg-[#00B8C2] rounded-xl font-rubik font-bold text-[#F9FBFD]">
+            Save
+          </button>
+          <button type="button" onClick={() => setShowSubAdminModal(false)} className="px-6 py-3 bg-[#F05822] rounded-xl font-rubik font-bold text-[#F9FBFD]">
+            Cancel
+          </button>
         </div>
       </form>
     </div>
