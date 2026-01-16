@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar: React.FC = () => {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
 
   return (
     <nav className="bg-[#063A4F]/90 text-[#F9FBFD] p-4 flex justify-between font-rubik">

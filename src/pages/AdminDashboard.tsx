@@ -1,5 +1,5 @@
 // src/pages/AdminDashboard.tsx
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { useAuth } from "../context/AuthContext";
 import API from "../utils/api";
@@ -58,7 +58,7 @@ const initialDue: Due = {
   platformFeePercent: 7,
 };
 const AdminDashboard: React.FC = () => {
-  const { user, token, isAdmin } = useAuth(); // <-- single, correct destructure
+  const { token, isAdmin } = useAuth(); // <-- single, correct destructure
 
   const [activeTab, setActiveTab] = useState<"payments" | "dues" | "subadmins">("payments");
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -105,7 +105,7 @@ const AdminDashboard: React.FC = () => {
     loadDashboard();
   }, []);
 
-const fetchData = async () => {
+const fetchData = useCallback(async () => {
   if (!token) {
     alert("Login as superadmin first!");
     return;
@@ -127,7 +127,7 @@ const fetchData = async () => {
   } finally {
     setLoading(false);
   }
-};
+}, [token]);  // ← Only depend on token (stable)
 
   useEffect(() => {
   if (!isAdmin || !token) {
@@ -137,7 +137,8 @@ const fetchData = async () => {
   fetchData();
     const interval = setInterval(fetchData, 60000);
     return () => clearInterval(interval);
-  }, [isAdmin, token]);
+  }, [isAdmin, token, fetchData]);
+
   // ===== FILTERS =====
   const filteredPayments = useMemo(() => payments.filter(p => 
   p.status === "success" && (

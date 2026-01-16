@@ -1,11 +1,10 @@
 import React from "react";
 import Navbar from "../components/Navbar";
 import Card from "../components/Card";
-import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 
 const Profile: React.FC = () => {
-    const { user, logout, isAdmin } = useAuth();
+    const { user } = useAuth();
   
   return (
     <div>

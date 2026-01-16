@@ -36,7 +36,6 @@ const PayForSomeone: React.FC = () => {
 
 
   const selectedDue = dues.find(d => d._id === form.dueId);
-const level = form.level; // e.g., "100", "200"
 
   const safePrices = selectedDue?.prices || {};
   const baseAmount = safePrices[form.level] ?? 0;

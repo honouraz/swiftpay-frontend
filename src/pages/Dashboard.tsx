@@ -10,7 +10,7 @@ import API from "../utils/api";
 
 const DashboardContent = () => {
   const { user, logout, isAdmin } = useAuth();
-  const [payments, setPayments] = useState([]);
+  const [, setPayments] = useState([]);
   const navigate = useNavigate();
 
  useEffect(() => {
