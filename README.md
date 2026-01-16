@@ -1,2 +1,1 @@
-jredeploy.b
-lkjhc
+redeploy
