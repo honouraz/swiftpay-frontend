@@ -1,46 +1,49 @@
-// src/pages/Login.tsx – MONNIFY-STYLE: CLEAN FORM, GRADIENT BUTTONS, SUBTLE GLOW ANIMATIONS
+// src/pages/Login.tsx – With Role Dropdown (Admin/User vs Subadmin)
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
-import { useAuth } from "../context/AuthContext";
 import API from "../utils/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"user" | "subadmin">("user"); // Default to normal user/admin
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
 
- const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  try {
-    // First try normal user login
-    let res = await API.post("/users/login", { email, password });
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-    // If fails, try subadmin login
-    if (res.status !== 200) {
-      res = await API.post("/subadmin/login", { email, password });
+    try {
+      let endpoint = "/users/login";
+      let redirectPath = "/dashboard"; // Default for normal users + superadmins
+
+      if (role === "subadmin") {
+        endpoint = "/subadmin/login";
+        redirectPath = "/subadmin-dashboard"; // Your subadmin dashboard route
+      }
+
+      const res = await API.post(endpoint, { email, password });
+      const { token, user } = res.data;
+
+      // Save token (your auth method)
+      localStorage.setItem("swiftpay_token", token);
+
+      toast.success(`🔥 Welcome ${user.name || "Boss"}!`);
+
+      navigate(redirectPath);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Wrong email or password");
+    } finally {
+      setLoading(false);
     }
-
-    await login(email, password); // your context login
-    toast.success("🔥 Welcome Boss!");
-    navigate("/dashboard");
-  } catch (err: any) {
-    toast.error("Wrong email or password");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: 'url("../assets/bg.jpg")' }}>
-      {/* Monnify-like subtle overlay for contrast */}
       <div className="absolute inset-0 bg-[#063A4F]/40 backdrop-blur-sm" />
-
-      {/* Glowing orbs with Monnify colors */}
       <div className="absolute top-20 left-20 w-96 h-96 bg-[#00B8C2]/40 rounded-full blur-3xl opacity-60 animate-pulse" />
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#FDB515]/40 rounded-full blur-3xl opacity-60 animate-pulse [animation-delay:1s]" />
 
@@ -51,13 +54,8 @@ const Login = () => {
         className="relative z-10 w-full max-w-lg mx-4"
       >
         <div className="bg-[#F9FBFD]/10 backdrop-blur-2xl rounded-3xl border border-[#063A4F]/20 shadow-2xl p-12">
-          {/* Logo + Name – Gradient text like Monnify headings */}
           <div className="text-center mb-12">
-            <motion.div
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 6, repeat: Infinity }}
-              className="inline-block"
-            >
+            <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 6, repeat: Infinity }}>
               <h1 className="text-7xl font-bold font-rubik bg-gradient-to-r from-[#00B8C2] to-[#FDB515] bg-clip-text text-transparent drop-shadow-2xl">
                 SwiftPay
               </h1>
@@ -66,6 +64,19 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleLogin} className="space-y-7">
+            {/* Role Dropdown */}
+            <div>
+              <label className="block mb-2 font-oxygen text-[#F9FBFD]">Login As</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value as "user" | "subadmin")}
+                className="w-full px-6 py-5 text-lg bg-[#124458] border border-[#063A4F]/30 rounded-xl text-[#F9FBFD] focus:outline-none focus:border-[#FDB515] focus:ring-4 focus:ring-[#FDB515]/30 transition-all duration-300 font-oxygen"
+              >
+                <option value="user">User / Admin</option>
+                <option value="subadmin">Association Subadmin</option>
+              </select>
+            </div>
+
             <input
               type="email"
               required
@@ -84,7 +95,6 @@ const Login = () => {
               className="w-full px-6 py-5 text-lg bg-[#124458] border border-[#063A4F]/30 rounded-xl text-[#F9FBFD] placeholder-[#F9FBFD]/50 focus:outline-none focus:border-[#FDB515] focus:ring-4 focus:ring-[#FDB515]/30 transition-all duration-300 font-oxygen"
             />
 
-            {/* KILLER BUTTON – Monnify primary gradient with shadow hover */}
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
