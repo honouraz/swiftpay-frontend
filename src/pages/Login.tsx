@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
+import API from "../utils/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,19 +13,27 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await login(email, password);
-      toast.success("🔥 Welcome Boss!");
-      navigate("/dashboard");
-    } catch (err: any) {
-      toast.error("Wrong email or password");
-    } finally {
-      setLoading(false);
+ const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  try {
+    // First try normal user login
+    let res = await API.post("/users/login", { email, password });
+
+    // If fails, try subadmin login
+    if (res.status !== 200) {
+      res = await API.post("/subadmin/login", { email, password });
     }
-  };
+
+    await login(email, password); // your context login
+    toast.success("🔥 Welcome Boss!");
+    navigate("/dashboard");
+  } catch (err: any) {
+    toast.error("Wrong email or password");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: 'url("../assets/bg.jpg")' }}>
