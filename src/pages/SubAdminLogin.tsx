@@ -4,37 +4,38 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import API from "../utils/api";
-import { useAuth } from "../context/AuthContext"; // MUST HAVE THIS
 
 const SubAdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  useAuth(); // ← This updates global auth state
 
   const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const res = await API.post("/subadmin/login", { email, password });
+    try {
+      const res = await API.post("/subadmin/login", { email, password });
 
-    const { token, user } = res.data;
+      const { token, user } = res.data;
 
-    localStorage.setItem("swiftpay_token", token);
+      // Save token
+      localStorage.setItem("swiftpay_token", token);
 
-    // Manually update user state if your context exposes setUser
-    // If not, just rely on token and redirect
-    toast.success(`🔥 Welcome ${user.name || "Subadmin"}!`);
+      // Optional: Save full user data locally (for dashboard to load)
+      localStorage.setItem("swiftpay_user", JSON.stringify(user));
 
-    navigate("/subadmin-dashboard");
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Wrong email or password");
-  } finally {
-    setLoading(false);
-  }
-};
+      toast.success("🔥 Welcome Subadmin!");
+
+      navigate("/subadmin-dashboard");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Wrong email or password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: 'url("../assets/bg.jpg")' }}>
       <div className="absolute inset-0 bg-[#063A4F]/40 backdrop-blur-sm" />

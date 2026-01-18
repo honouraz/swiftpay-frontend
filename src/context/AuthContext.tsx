@@ -7,6 +7,7 @@ type User = {
   name?: string;
   email?: string;
   role?: "superadmin" | "subadmin" | "user"; // optional role
+  association?: string;
 };
 
 type AuthContextType = {
@@ -48,7 +49,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     else localStorage.removeItem("swiftpay_user");
   }, [user]);
 
-  const login = async (email: string, password: string, role: "user" | "subadmin" = "user") => {
+  const login = async (
+  email: string,
+  password: string,
+  role: "user" | "subadmin" = "user"  // ← Add this (default = "user")
+) => {
   let endpoint = "/users/login";
   if (role === "subadmin") {
     endpoint = "/subadmin/login";
@@ -60,9 +65,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   if (!data?.token) throw new Error(data?.message || "No token returned");
 
   setToken(data.token);
-  setUser(data.user); // This will set role: "subadmin" for subadmins
+  setUser(data.user); // Now sets full subadmin data including association
 };
-
   const register = async (email: string, password: string, name?: string) => {
     const res = await API.post("/users/register", { email, password, name });
     return res.data;
