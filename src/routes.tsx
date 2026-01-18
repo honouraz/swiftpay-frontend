@@ -13,6 +13,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";   // ← ADD THIS IMPORT
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyTransactions from "./pages/MyTransactions";
 import SubAdminDashboard from "./pages/SubAdminDashboard";
+import SubAdminLogin from "./pages/SubAdminLogin";
 
 let AuthProvider: any = ({ children }: any) => children;
 try {
@@ -29,6 +30,7 @@ export default function AppRoutes() {
           <Route path="/" element={<Layout><Login /></Layout>} />
           <Route path="/register" element={<Layout><Register /></Layout>} />
           <Route path="/subadmin-dashboard" element={<SubAdminDashboard />} />
+         <Route path="/subadmin-login" element={<SubAdminLogin />} />
           <Route path="/dashboard" element={<Layout><ProtectedRoute><Dashboard /></ProtectedRoute></Layout>} />
           <Route path="/payment" element={<Layout><ProtectedRoute><Payment /></ProtectedRoute></Layout>} />
           <Route path="/profile" element={<Layout><ProtectedRoute><Profile /></ProtectedRoute></Layout>} />

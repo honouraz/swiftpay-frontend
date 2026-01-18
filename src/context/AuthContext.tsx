@@ -48,15 +48,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     else localStorage.removeItem("swiftpay_user");
   }, [user]);
 
-  const login = async (email: string, password: string) => {
-    const res = await API.post("/users/login", { email, password });
-    const data = res.data;
+  const login = async (email: string, password: string, role: "user" | "subadmin" = "user") => {
+  let endpoint = "/users/login";
+  if (role === "subadmin") {
+    endpoint = "/subadmin/login";
+  }
 
-    if (!data?.token) throw new Error(data?.message || "No token returned");
+  const res = await API.post(endpoint, { email, password });
+  const data = res.data;
 
-    setToken(data.token);
-    setUser(data.user);
-  };
+  if (!data?.token) throw new Error(data?.message || "No token returned");
+
+  setToken(data.token);
+  setUser(data.user); // This will set role: "subadmin" for subadmins
+};
 
   const register = async (email: string, password: string, name?: string) => {
     const res = await API.post("/users/register", { email, password, name });
