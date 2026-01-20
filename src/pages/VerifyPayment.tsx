@@ -11,6 +11,7 @@ interface Payment {
     matricNumber?: string;
     dueName?: string;
     level?: string;
+    payerName?: string;
   };
   status: string;
   paidAt: string;
@@ -69,7 +70,7 @@ const VerifyPayment: React.FC = () => {
   }
 
   const isSuccess = payment.status === "success";
-  const payerName = payment.payerName || "Unknown";
+  const payerName = payment.metadata?.payerName || "Unknown";
   const matric = payment.metadata?.matricNumber || "N/A";
   const due = payment.metadata?.dueName || "Unknown Due";
   const level = payment.metadata?.level || "N/A";
