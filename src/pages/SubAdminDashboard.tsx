@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import API from "../utils/api";
 import { CSVLink } from "react-csv";
 import { motion } from "framer-motion";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 interface Payment {
@@ -15,34 +15,50 @@ interface Payment {
   baseAmount?: number;
   paidAt: string;
   metadata?: {
+    payerName?: string;
     department?: string;
     matricNumber?: string;
     phone?: string;
+    level?: string;
   };
 }
 
 const SubAdminDashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const storedUser = localStorage.getItem("swiftpay_user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-    const navigate = useNavigate();
-  const storedUser = localStorage.getItem("swiftpay_user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
-console.log("Logged in subadmin:", user);
+
+  console.log("Logged in subadmin:", user);
+
+  const fetchPayments = async () => {
+    setLoading(true);
+    try {
+      const res = await API.get("/subadmin/payments");
+      setPayments(res.data || []);
+      console.log("Payments refreshed:", res.data.length);
+    } catch (err) {
+      console.error("Failed to load association payments:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPayments = async () => {
-      try {
-        const res = await API.get("/subadmin/payments");
-        setPayments(res.data || []);
-      } catch (err) {
-        console.error("Failed to load association payments:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPayments();
-  }, []);
+    fetchPayments(); // Initial fetch
+
+    // Auto-refresh every 3 minutes (180,000 ms)
+    const interval = setInterval(() => {
+      fetchPayments();
+      toast.info("Dashboard refreshed automatically", { autoClose: 3000 });
+    }, 180000);
+
+    // Cleanup interval when component unmounts
+    return () => clearInterval(interval);
+  }, []); // Empty deps → runs once on mount + interval
 
   // Filter payments by search
   const filteredPayments = useMemo(() => {
@@ -57,7 +73,7 @@ console.log("Logged in subadmin:", user);
   const totalStudents = filteredPayments.length;
   const totalBase = filteredPayments.reduce((acc, p) => acc + (p.baseAmount || 0), 0);
 
-  if (loading) {
+  if (loading && payments.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#063A4F] to-[#124458] text-[#F9FBFD]">
         <motion.div
@@ -73,28 +89,32 @@ console.log("Logged in subadmin:", user);
 
   return (
     <div className="min-h-screen p-8 bg-gradient-to-br from-[#063A4F] to-[#124458] text-[#F9FBFD]">
-      {/* Header - Shows Real Association Name */}
-      <motion.h1
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-5xl font-rubik font-bold text-center mb-10 bg-gradient-to-r from-[#FDB515] to-[#F05822] bg-clip-text text-transparent drop-shadow-lg"
-      >
-        {user?.association ? `${user.association} Dashboard` : "Association Dashboard"}
-      </motion.h1>
+      {/* Header */}
+      <div className="flex justify-between items-center mb-10">
+        <motion.h1
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-5xl font-rubik font-bold bg-gradient-to-r from-[#FDB515] to-[#F05822] bg-clip-text text-transparent drop-shadow-lg"
+        >
+          {user?.association ? `${user.association} Dashboard` : "Association Dashboard"}
+        </motion.h1>
 
-<motion.button
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-    onClick={() => {
-      localStorage.removeItem("swiftpay_token");
-      navigate("/");
-      toast.info("Logged out successfully");
-    }}
-    className="px-8 py-4 bg-gradient-to-r from-[#F05822] to-[#F0AA22] rounded-xl font-bold text-[#F9FBFD] shadow-lg hover:shadow-xl transition-all"
-  >
-    Logout
-  </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            localStorage.removeItem("swiftpay_token");
+            localStorage.removeItem("swiftpay_user");
+            navigate("/");
+            toast.info("Logged out successfully");
+          }}
+          className="px-8 py-4 bg-gradient-to-r from-[#F05822] to-[#F0AA22] rounded-xl font-bold text-[#F9FBFD] shadow-lg hover:shadow-xl transition-all"
+        >
+          Logout
+        </motion.button>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid md:grid-cols-3 gap-6 mb-10">
         {[
@@ -119,7 +139,7 @@ console.log("Logged in subadmin:", user);
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
         <input
           type="text"
-          placeholder="Search payments (name, email, matric, due)..."
+          placeholder="Search payments (name, email, matric, level, due)..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full md:w-2/3 p-4 rounded-xl bg-[#063A4F]/50 border border-[#063A4F]/30 text-[#F9FBFD] placeholder-[#F9FBFD]/50 focus:outline-none focus:border-[#FDB515] transition-all"
@@ -127,10 +147,10 @@ console.log("Logged in subadmin:", user);
 
         <CSVLink
           data={filteredPayments.map(p => ({
-            Name: p.payerName,
+            Name: p.metadata?.payerName || "N/A",
             Email: p.userEmail,
             Due: p.dueName,
-            Level: p.level || "-",
+            Level: p.metadata?.level || "-",
             Matric: p.metadata?.matricNumber || "-",
             Department: p.metadata?.department || "-",
             Phone: p.metadata?.phone || "-",
@@ -188,12 +208,12 @@ console.log("Logged in subadmin:", user);
                     transition={{ duration: 0.4 }}
                     className="border-t border-[#063A4F]/30 hover:bg-[#063A4F]/40 transition-colors"
                   >
-                    <td className="p-5">{p.payerName || "N/A"}</td>
+                    <td className="p-5">{p.metadata?.payerName || "N/A"}</td>
                     <td className="p-5">{p.userEmail || "N/A"}</td>
                     <td className="p-5">{p.metadata?.matricNumber || "-"}</td>
                     <td className="p-5">{p.metadata?.department || "-"}</td>
                     <td className="p-5 font-medium text-[#FDB515]">{p.dueName}</td>
-                    <td className="p-5">{p.level || "-"}</td>
+                    <td className="p-5">{p.metadata?.level || "-"}</td>
                     <td className="p-5 font-bold text-[#00B8C2]">₦{(p.baseAmount || 0).toLocaleString()}</td>
                     <td className="p-5 text-[#F9FBFD]/80">
                       {new Date(p.paidAt).toLocaleDateString("en-GB", {

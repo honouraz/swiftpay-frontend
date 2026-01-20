@@ -258,6 +258,16 @@ const handleSubmit = async (e: React.FormEvent) => {
     if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-[#F9FBFD]">Access Denied</div>;
   if (loading) return <div className="min-h-screen flex items-center justify-center text-[#F9FBFD]">Loading...</div>;
 
+  const sortedDues = [...dues].sort((a, b) => {
+  const sumA = payments
+    .filter(p => p.status === "success" && (p.dueName?.toLowerCase() === a.name.toLowerCase() || p.metadata?.dueName?.toLowerCase() === a.name.toLowerCase()))
+    .reduce((acc, p) => acc + (p.baseAmount || p.amount || 0), 0);
+  const sumB = payments
+    .filter(p => p.status === "success" && (p.dueName?.toLowerCase() === b.name.toLowerCase() || p.metadata?.dueName?.toLowerCase() === b.name.toLowerCase()))
+    .reduce((acc, p) => acc + (p.baseAmount || p.amount || 0), 0);
+  return sumB - sumA;
+});
+
   return (
     <ProtectedRoute adminOnly>
       <div className="min-h-screen p-8 text-[#F9FBFD]">
@@ -267,32 +277,93 @@ const handleSubmit = async (e: React.FormEvent) => {
           ADMIN CONTROL CENTER
         </motion.h1>
 
-        {/* STATS */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          {[{ label: "Total Payments", value: filteredPayments.length, color: "#00B8C2" },
-            { label: "Total Amount Collected", value: `₦${totalAmount.toLocaleString()}`, color: "#FDB515" },
-            { label: "Total Platform Fee", value: `₦${totalCommission.toLocaleString()}`, color: "#F05822" },
-            { label: "Total Extra Charges", value: `₦${totalExtraCharges.toLocaleString()}`, color: "#00B8C2" }].map((stat, idx) => (
-              <motion.div key={idx} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.1 }}
-                className="bg-[#124458] p-6 rounded-xl text-center shadow-md">
-                <p className="text-sm text-[#F9FBFD]/70 font-oxygen">{stat.label}</p>
-                <p className="text-2xl font-rubik font-bold" style={{ color: stat.color }}>{stat.value}</p>
-              </motion.div>
-            ))}
-        </div>
+{/* ================== SIDE-BY-SIDE LAYOUT: LEFT (MAIN STATS + STATUS) + RIGHT (COMPACT PER ASSOCIATION) ================== */}
+<div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-12">
+  {/* LEFT: Main Stats + Status (your original layout, now takes most space) */}
+  <div className="lg:col-span-3 space-y-8">
+    {/* Main Stats - Your 4 cards */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {[
+        { label: "Total Payments", value: filteredPayments.length, color: "#00B8C2" },
+        { label: "Total Amount Collected", value: `₦${totalAmount.toLocaleString()}`, color: "#FDB515" },
+        { label: "Total Platform Fee", value: `₦${totalCommission.toLocaleString()}`, color: "#F05822" },
+        { label: "Total Extra Charges", value: `₦${totalExtraCharges.toLocaleString()}`, color: "#00B8C2" },
+      ].map((stat, idx) => (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: idx * 0.1 }}
+          className="bg-[#124458] p-6 rounded-xl text-center shadow-md"
+        >
+          <p className="text-sm text-[#F9FBFD]/70 font-oxygen">{stat.label}</p>
+          <p className="text-2xl font-rubik font-bold" style={{ color: stat.color }}>
+            {stat.value}
+          </p>
+        </motion.div>
+      ))}
+    </div>
 
-        {/* STATUS */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {[{ label: "Pending", value: totalPending, color: "#FDB515" },
-            { label: "Completed", value: totalSuccess, color: "#00B8C2" },
-            { label: "Failed", value: totalFailed, color: "#F05822" }].map((stat, idx) => (
-              <motion.div key={idx} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.1 }}
-                className="bg-[#124458] p-6 rounded-xl text-center shadow-md">
-                <p className="text-sm text-[#F9FBFD]/70 font-oxygen">{stat.label}</p>
-                <p className="text-2xl font-rubik font-bold" style={{ color: stat.color }}>{stat.value}</p>
-              </motion.div>
-            ))}
-        </div>
+    {/* Status - Pending/Completed/Failed */}
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      {[
+        { label: "Pending", value: totalPending, color: "#FDB515" },
+        { label: "Completed", value: totalSuccess, color: "#00B8C2" },
+        { label: "Failed", value: totalFailed, color: "#F05822" },
+      ].map((stat, idx) => (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: idx * 0.1 }}
+          className="bg-[#124458] p-6 rounded-xl text-center shadow-md"
+        >
+          <p className="text-sm text-[#F9FBFD]/70 font-oxygen">{stat.label}</p>
+          <p className="text-2xl font-rubik font-bold" style={{ color: stat.color }}>
+            {stat.value}
+          </p>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+
+  {/* RIGHT: Compact Vertical List - Slim, tight, extreme right */}
+  <div className="bg-[#124458]/90 backdrop-blur-md p-5 rounded-2xl border border-[#063A4F]/40 shadow-xl h-fit">
+    <h3 className="text-lg font-rubik font-bold text-center mb-4 text-[#FDB515]">
+      Per Dues Totals
+    </h3>
+
+    <div className="space-y-2 max-h-[320px] overflow-y-auto text-sm pr-1">
+      {dues.length === 0 ? (
+        <p className="text-center text-[#F9FBFD]/60 text-xs">
+          No dues yet
+        </p>
+      ) : (
+        sortedDues.map((due) => {
+          const total = payments
+            .filter(p => p.status === "success" && 
+              (p.dueName?.toLowerCase() === due.name.toLowerCase() || 
+               p.metadata?.dueName?.toLowerCase() === due.name.toLowerCase()))
+            .reduce((acc, p) => acc + (p.baseAmount || p.amount || 0), 0);
+
+          return (
+            <div 
+              key={due._id || due.name}
+              className="flex justify-between items-center bg-[#063A4F]/40 p-2.5 rounded-lg hover:bg-[#063A4F]/60 transition-colors"
+            >
+              <span className="text-[#F9FBFD] truncate max-w-[60%] text-xs">
+                {due.name}
+              </span>
+              <span className="text-[#00B8C2] font-bold text-xs">
+                ₦{total.toLocaleString()}
+              </span>
+            </div>
+          );
+        })
+      )}
+    </div>
+  </div>
+</div>
 
         {/* TABS */}
         <div className="flex justify-center gap-8 mb-10">
