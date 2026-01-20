@@ -14,7 +14,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import MyTransactions from "./pages/MyTransactions";
 import SubAdminDashboard from "./pages/SubAdminDashboard";
 import SubAdminLogin from "./pages/SubAdminLogin";
-
+import VerifyPayment from "./pages/VerifyPayment";
 let AuthProvider: any = ({ children }: any) => children;
 try {
   AuthProvider = require("./context/AuthContext").AuthProvider;
@@ -28,6 +28,7 @@ export default function AppRoutes() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout><Login /></Layout>} />
+          <Route path="/verify/:reference" element={<VerifyPayment />} />
           <Route path="/register" element={<Layout><Register /></Layout>} />
           <Route path="/subadmin-dashboard" element={<SubAdminDashboard />} />
          <Route path="/subadmin-login" element={<SubAdminLogin />} />
