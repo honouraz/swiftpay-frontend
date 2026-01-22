@@ -8,10 +8,11 @@ const PaymentSuccess: React.FC = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-const reference = 
-    params.get("reference") ||          // Paystack
-    params.get("trxref") ||             // Flutterwave old
-    params.get("tx_ref");               // Flutterwave current
+    const reference =
+      params.get("reference") ||    // Paystack
+      params.get("trxref") ||       // Flutterwave old
+      params.get("tx_ref");         // Flutterwave current
+
     if (!reference) {
       setMessage("No payment reference found");
       return;
@@ -19,30 +20,57 @@ const reference =
 
     setMessage("Payment successful! 🎉 Generating your receipt...");
 
-    const downloadReceipt = () => {
-      const link = document.createElement("a");
-      link.href = `${API_BASE_URL}/receipt-by-ref/${reference}`;
-      link.download = `SwiftPay_Receipt_${reference}.pdf`;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    const downloadReceipt = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/receipt-by-ref/${reference}`);
+
+        if (!response.ok) {
+          setMessage("Payment successful! 🎉 But receipt could not be generated.");
+          return;
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `SwiftPay_Receipt_${reference}.pdf`;
+
+        // Safari fix: download attribute no dey work well for programmatic clicks
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+        if (isSafari) {
+          // Safari: open in new tab (user go see and download manually)
+          window.open(url, "_blank");
+          setMessage("Payment successful! 🎉 Receipt opened in new tab (Safari). Download from there.");
+        } else {
+          // Other browsers: auto download
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setMessage("Payment successful! 🎉 Receipt downloaded.");
+        }
+
+        // Clean up
+        window.URL.revokeObjectURL(url);
+      } catch (err) {
+        console.error("Receipt download error:", err);
+        setMessage("Payment successful! 🎉 But receipt failed to load.");
+      }
     };
 
+    // Small delay for better UX
     setTimeout(() => {
       downloadReceipt();
-      setMessage("Payment successful! 🎉 Receipt downloaded.");
     }, 1500);
 
-    // Optional verify (no harm)
+    // Optional verify call (no harm)
     const verify = async () => {
       try {
         await fetch(`${API_BASE_URL}/api/payments/flutterwave/verify/${reference}`);
       } catch {}
     };
     verify();
-
   }, []);
 
   return (
