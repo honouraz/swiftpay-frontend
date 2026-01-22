@@ -21,7 +21,7 @@ const PaymentSuccess: React.FC = () => {
     setMessage("Payment successful! 🎉 Generating your receipt...");
 
  const downloadReceipt = () => {
-  const receiptUrl = `${API_BASE_URL}/api/receipt-by-ref/${reference}`;
+  const receiptUrl = `${API_BASE_URL}/receipt-by-ref/${reference}`;
 
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
