@@ -20,24 +20,30 @@ const PaymentSuccess: React.FC = () => {
 
     setMessage("Payment successful! 🎉 Generating your receipt...");
 
-    const downloadReceipt = () => {
-      const link = document.createElement("a");
-      link.href = `${API_BASE_URL}/receipt-by-ref/${reference}`;
-      link.download = `SwiftPay_Receipt_${reference}.pdf`;
+ const downloadReceipt = () => {
+  const receiptUrl = `${API_BASE_URL}/api/receipt-by-ref/${reference}`;
 
-      // Safari fix: download attribute no dey work well for programmatic click
-      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-      if (isSafari) {
-        // Safari: open in new tab so user fit download manually
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-      }
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
+  if (isSafari) {
+    // Safari: Open receipt in new tab directly (user fit download from there)
+    const newTab = window.open(receiptUrl, "_blank");
+    if (newTab) {
+      newTab.focus();
+    } else {
+      // If popup blocked
+      alert("Please allow pop-ups for this site to download receipt on Safari");
+    }
+  } else {
+    // Other browsers: auto download
+    const link = document.createElement("a");
+    link.href = receiptUrl;
+    link.download = `SwiftPay_Receipt_${reference}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+};
 
     setTimeout(() => {
       downloadReceipt();
