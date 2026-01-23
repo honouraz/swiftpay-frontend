@@ -126,7 +126,7 @@ const VerifyPayment: React.FC = () => {
           <div className="space-y-4">
             <div className="bg-[#063A4F]/50 p-6 rounded-2xl border border-[#063A4F]/30">
               <p className="text-sm text-[#F9FBFD]/70">Payment For</p>
-              <p className="text-2xl font-bold">{due} (Level {level})</p>
+              <p className="text-2xl font-bold">{due} (Level {level} ✅)</p>
             </div>
 
             <div className="bg-[#063A4F]/50 p-6 rounded-2xl border border-[#063A4F]/30">

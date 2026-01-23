@@ -37,6 +37,8 @@ interface Due {
   prices: { '100': number; '200': number; '300': number; '400': number; '500': number; };
   extraCharge?: number;
   platformFeePercent?: number;
+    flutterwaveSubaccountId?: string;
+
   
 }
 
@@ -56,6 +58,7 @@ const initialDue: Due = {
   prices: { '100': 0, '200': 0, '300': 0, '400': 0, '500': 0 },
   extraCharge: 0,
   platformFeePercent: 7,
+  flutterwaveSubaccountId: "",
 };
 const AdminDashboard: React.FC = () => {
   const { token, isAdmin } = useAuth(); // <-- single, correct destructure
@@ -186,21 +189,23 @@ const totalExtraCharges = useMemo(
 
   // ===== HANDLERS =====
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    let newForm = {
-      ...formData,
-      [name]: name === "extraCharge" || name === "platformFeePercent" ? parseFloat(value) || 0 : value,
-    };
+  const { name, value } = e.target;
 
-    // FIX: If extraCharge > 0, set platformFeePercent to 0
-    if (name === "extraCharge" && parseFloat(value) > 0) {
-      newForm.platformFeePercent = 0;
-    } else if (name === "platformFeePercent" && parseFloat(value) > 0) {
-      newForm.extraCharge = 0;
-    }
+  // Use type assertion to tell TS it's safe (since we control the formData shape)
+  setFormData(prev => ({
+    ...prev,
+    [name]: name === "extraCharge" || name === "platformFeePercent" 
+      ? parseFloat(value) || 0 
+      : value,
+  }));
 
-    setFormData(newForm);
-  };
+  // Your extra logic (still works)
+  if (name === "extraCharge" && parseFloat(value) > 0) {
+    setFormData(prev => ({ ...prev, platformFeePercent: 0 }));
+  } else if (name === "platformFeePercent" && parseFloat(value) > 0) {
+    setFormData(prev => ({ ...prev, extraCharge: 0 }));
+  }
+};
 
   
   const handlePriceChange = (level: keyof Due["prices"], value: string) => {
@@ -490,6 +495,20 @@ const handleSubmit = async (e: React.FormEvent) => {
                       <label className="block mb-1 font-oxygen">Name</label>
                       <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" required />
                     </div>
+                    <div>
+  <label className="block mb-1 font-oxygen">Flutterwave Subaccount ID (for split)</label>
+  <input
+    type="text"
+    name="flutterwaveSubaccountId"
+    value={formData.flutterwaveSubaccountId ?? ""}
+    onChange={handleInputChange}
+    className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD] border border-[#063A4F]/30 focus:border-[#FDB515]"
+    placeholder="RS_39BF2FAE47D4C83EE7A123617CDD8351"
+  />
+  <p className="text-xs text-[#F9FBFD]/70 mt-1">
+    Paste from Flutterwave dashboard (optional)
+  </p>
+</div>
                     <div>
                       <label className="block mb-1 font-oxygen">Description</label>
                       <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" required />
