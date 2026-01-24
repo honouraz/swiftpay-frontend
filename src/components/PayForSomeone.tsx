@@ -61,8 +61,9 @@ const PayForSomeone: React.FC = () => {
   matric: form.matricNumber,
   department: form.department,
   phone: form.phone,
- gateway: "flutterwave"  // ← THIS MAKES IT FLUTTERWAVE PRIMARY!
-    });
+ gateway: "flutterwave",  // ← THIS MAKES IT FLUTTERWAVE PRIMARY!
+baseAmount: baseAmount    
+});
 
       window.location.href = res.data.paymentUrl || res.data.authorization_url; // Flutterwave uses paymentUrl
   } catch (err: any) {
