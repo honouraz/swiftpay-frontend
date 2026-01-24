@@ -188,15 +188,14 @@ const totalExtraCharges = useMemo(
   const totalFailed = useMemo(() => filteredPayments.filter(p => p.status === "failed").length, [filteredPayments]);
 
   // ===== HANDLERS =====
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
   const { name, value } = e.target;
 
-  // Use type assertion to tell TS it's safe (since we control the formData shape)
   setFormData(prev => ({
     ...prev,
-    [name]: name === "extraCharge" || name === "platformFeePercent" 
-      ? parseFloat(value) || 0 
-      : value,
+    [name]: name === "extraCharge" || name === "platformFeePercent"
+      ? parseFloat(value) || 0
+      : value, // flutterwaveSubaccountId na string — no parseFloat
   }));
 
   // Your extra logic (still works)
@@ -213,7 +212,15 @@ const totalExtraCharges = useMemo(
     setFormData(prev => ({ ...prev, prices: { ...prev.prices, [level]: numValue } }));
   };
 
-  const handleEdit = (due: Due) => { setEditingDue(due); setFormData(due); setShowModal(true); };
+const handleEdit = (due: Due) => {
+  setEditingDue(due);
+  setFormData({
+    ...due, // Spread everything from due
+    prices: { ...due.prices }, // Deep copy prices
+    flutterwaveSubaccountId: due.flutterwaveSubaccountId || "", // Explicitly copy the new field
+  });
+  setShowModal(true);
+};
   const handleDelete = async (id: string) => { if (!window.confirm("Are you sure?")) return; try { await API.delete(`/dues/${id}`); fetchData(); } catch (err) { console.error(err); } };
 
 const handleSubAdminInput = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
