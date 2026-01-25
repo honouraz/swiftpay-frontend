@@ -91,7 +91,8 @@ const [formData, setFormData] = useState<Due>(initialDue);
 
 const [banks, setBanks] = useState<Bank[]>([]);
 useEffect(() => {
-  API.get("/flutterwave/banks").then(res => setBanks(res.data || [])).catch(console.error);
+  API.get("/payments/flutterwave/banks")
+  .then(res => setBanks(res.data || [])).catch(console.error);
 }, []);
 
 const [payouts, setPayouts] = useState<any[]>([]);
@@ -104,7 +105,7 @@ const [payAmount, setPayAmount] = useState<number>(0);
 const [loadingPayout, setLoadingPayout] = useState(false);
 
 useEffect(() => {
-  API.get("/payouts/all").then(res => {
+  API.get("/payments/payouts/all").then(res => {
     setPayouts(res.data);
     const baseMap: Record<string, number> = {};
     const paidMap: Record<string, number> = {};
@@ -304,7 +305,7 @@ const handleInitiatePayout = async (dueId: string) => {
 
   setLoadingPayout(true);
   try {
-    await API.post(`/payouts/initiate/${dueId}`, { amount: payAmount });
+    await API.post(`/payments/payouts/initiate/${dueId}`, { amount: payAmount });
     toast.success(`₦${payAmount.toLocaleString()} payout initiated successfully!`);
     setPayAmount(0);
     fetchData(); // Refresh all data
