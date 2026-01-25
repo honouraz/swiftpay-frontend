@@ -1,6 +1,7 @@
-/dcredeploy.
+./dcredeploy.
 .
 ..
 /
 .
 .
+f
