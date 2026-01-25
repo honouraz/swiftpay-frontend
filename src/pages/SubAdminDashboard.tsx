@@ -32,6 +32,25 @@ const SubAdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  const [totalPaidOut, setTotalPaidOut] = useState<number>(0);
+const [pendingAmount, setPendingAmount] = useState<number>(0);
+const [payoutHistory, setPayoutHistory] = useState<any[]>([]); // array of payout records
+
+useEffect(() => {
+  const fetchPayoutData = async () => {
+    try {
+      const res = await API.get("/payouts/my"); // your endpoint
+      setTotalPaidOut(res.data.totalPaidOut || 0);
+      setPendingAmount(res.data.pendingAmount || 0);
+      setPayoutHistory(res.data.payouts || []);
+    } catch (err) {
+      console.error("Failed to fetch payout data", err);
+    }
+  };
+
+  fetchPayoutData();
+}, []);
+
   console.log("Logged in subadmin:", user);
 
   const fetchPayments = async () => {
@@ -229,7 +248,114 @@ const SubAdminDashboard: React.FC = () => {
           </table>
         </div>
       </motion.div>
+      {/* === NEW: Earnings & Payout Summary Section === */}
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.6 }}
+  className="mt-12 bg-[#124458]/80 backdrop-blur-md p-8 rounded-3xl border border-[#063A4F]/30 shadow-2xl"
+>
+  <h2 className="text-4xl font-rubik font-bold mb-8 text-center bg-gradient-to-r from-[#FDB515] to-[#F05822] bg-clip-text text-transparent">
+    Your Association Earnings Overview
+  </h2>
+
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+    {/* Total Collected */}
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      className="bg-gradient-to-br from-[#063A4F] to-[#124458] p-8 rounded-2xl border border-[#063A4F]/40 shadow-xl text-center"
+    >
+      <p className="text-lg text-[#F9FBFD]/70 font-oxygen mb-3">Total Base Amount Collected</p>
+      <p className="text-5xl font-bold text-[#00B8C2] drop-shadow-lg">
+        ₦{totalBase?.toLocaleString() || "0"}
+      </p>
+    </motion.div>
+
+    {/* Total Paid Out */}
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      className="bg-gradient-to-br from-[#063A4F] to-[#124458] p-8 rounded-2xl border border-[#063A4F]/40 shadow-xl text-center"
+    >
+      <p className="text-lg text-[#F9FBFD]/70 font-oxygen mb-3">Total Amount Paid Out</p>
+      <p className="text-5xl font-bold text-[#FDB515] drop-shadow-lg">
+        ₦{totalPaidOut?.toLocaleString() || "0"}
+      </p>
+    </motion.div>
+
+    {/* Amount Left */}
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      className="bg-gradient-to-br from-[#063A4F] to-[#124458] p-8 rounded-2xl border border-[#063A4F]/40 shadow-xl text-center"
+    >
+      <p className="text-lg text-[#F9FBFD]/70 font-oxygen mb-3">Amount Left to Receive</p>
+      <p className="text-5xl font-bold text-[#F05822] drop-shadow-lg">
+        ₦{pendingAmount?.toLocaleString() || "0"}
+      </p>
+    </motion.div>
+  </div>
+
+  {/* Payout History (Compulsory) */}
+  {payoutHistory.length > 0 ? (
+    <div className="mt-10">
+      <h3 className="text-2xl font-rubik font-bold mb-6 text-[#FDB515] text-center">
+        Payout History
+      </h3>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left font-oxygen border-collapse">
+          <thead className="bg-gradient-to-r from-[#F0AA22]/30 to-[#F05822]/30">
+            <tr>
+              <th className="p-5 font-bold text-[#FDB515]">Amount Paid</th>
+              <th className="p-5 font-bold text-[#FDB515]">Date</th>
+              <th className="p-5 font-bold text-[#FDB515]">Reference</th>
+              <th className="p-5 font-bold text-[#FDB515]">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {payoutHistory.map((p, index) => (
+              <motion.tr
+                key={p._id || index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="border-t border-[#063A4F]/30 hover:bg-[#063A4F]/40 transition-colors"
+              >
+                <td className="p-5 font-bold text-[#00B8C2]">₦{p.amount.toLocaleString()}</td>
+                <td className="p-5 text-[#F9FBFD]/80">
+                  {new Date(p.paidAt).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  })}
+                </td>
+                <td className="p-5 text-[#F9FBFD]/70 truncate max-w-xs">{p.reference || "N/A"}</td>
+                <td className="p-5">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      p.status === "success"
+                        ? "bg-[#00B8C2]/20 text-[#00B8C2] border border-[#00B8C2]/50"
+                        : p.status === "failed"
+                        ? "bg-[#F05822]/20 text-[#F05822] border border-[#F05822]/50"
+                        : "bg-[#FDB515]/20 text-[#FDB515] border border-[#FDB515]/50"
+                    }`}
+                  >
+                    {p.status.toUpperCase()}
+                  </span>
+                </td>
+              </motion.tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
+  ) : (
+    <div className="text-center py-12 text-[#F9FBFD]/70 text-xl font-medium">
+      No payouts have been made yet. You'll see history here once transfers are completed.
+    </div>
+  )}
+</motion.div>
+  </div>
   );
 };
 

@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import API from "../utils/api";
 import { CSVLink } from "react-csv";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 
 interface Payment {
   matricNumber: string;
@@ -31,6 +32,9 @@ interface Payment {
 }
 
 interface Due {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
   _id?: string;
   name: string;
   description: string;
@@ -52,6 +56,11 @@ interface SubAdmin {
   createdBy?: string;
 }
 
+interface Bank {
+  name: string;
+  code: string;
+}
+
 const initialDue: Due = {
   name: "",
   description: "",
@@ -59,11 +68,14 @@ const initialDue: Due = {
   extraCharge: 0,
   platformFeePercent: 7,
   flutterwaveSubaccountId: "",
+  bankName: "",
+  accountNumber: "",
+  accountName: ""
 };
 const AdminDashboard: React.FC = () => {
   const { token, isAdmin } = useAuth(); // <-- single, correct destructure
 
-  const [activeTab, setActiveTab] = useState<"payments" | "dues" | "subadmins">("payments");
+  const [activeTab, setActiveTab] = useState<"payments" | "dues" | "subadmins" | "payouts">("payments");
   const [payments, setPayments] = useState<Payment[]>([]);
   const [dues, setDues] = useState<Due[]>([]);
   const [subAdmins, setSubAdmins] = useState<SubAdmin[]>([]);
@@ -75,7 +87,38 @@ const AdminDashboard: React.FC = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [editingDue, setEditingDue] = useState<Due | null>(null);
-  const [formData, setFormData] = useState<Due>(initialDue);
+const [formData, setFormData] = useState<Due>(initialDue);
+
+const [banks, setBanks] = useState<Bank[]>([]);
+useEffect(() => {
+  API.get("/flutterwave/banks").then(res => setBanks(res.data || [])).catch(console.error);
+}, []);
+
+const [payouts, setPayouts] = useState<any[]>([]);
+const [totalBase, setTotalBase] = useState<Record<string, number>>({});
+const [totalPaid, setTotalPaid] = useState<Record<string, number>>({});
+const [pendingAmounts, setPendingAmounts] = useState<Record<string, number>>({});
+
+const [selectedDueId, setSelectedDueId] = useState("");
+const [payAmount, setPayAmount] = useState<number>(0);
+const [loadingPayout, setLoadingPayout] = useState(false);
+
+useEffect(() => {
+  API.get("/payouts/all").then(res => {
+    setPayouts(res.data);
+    const baseMap: Record<string, number> = {};
+    const paidMap: Record<string, number> = {};
+    const pendingMap: Record<string, number> = {};
+    res.data.forEach((p: any) => {
+      baseMap[p.dueId] = p.totalCollectedBase;
+      paidMap[p.dueId] = p.totalPaidOut;
+      pendingMap[p.dueId] = p.pendingAmount;
+    });
+    setTotalBase(baseMap);
+    setTotalPaid(paidMap);
+    setPendingAmounts(pendingMap);
+  });
+}, []);
 
   const [showSubAdminModal, setShowSubAdminModal] = useState(false);
   const [subAdminForm, setSubAdminForm] = useState({ name: "", email: "", password: "", association: "" });
@@ -253,6 +296,25 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 };
 
+const handleInitiatePayout = async (dueId: string) => {
+  if (payAmount <= 0 || payAmount > (pendingAmounts[dueId] || 0)) {
+    toast.error("Invalid amount");
+    return;
+  }
+
+  setLoadingPayout(true);
+  try {
+    await API.post(`/payouts/initiate/${dueId}`, { amount: payAmount });
+    toast.success(`₦${payAmount.toLocaleString()} payout initiated successfully!`);
+    setPayAmount(0);
+    fetchData(); // Refresh all data
+  } catch (err) {
+    toast.error("Payout failed – check console");
+    console.error(err);
+  } finally {
+    setLoadingPayout(false);
+  }
+};
 
   const handleDownloadReceipt = async (matric: string) => {
     if (!matric) return alert("Enter a matric number");
@@ -382,6 +444,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           <button onClick={() => setActiveTab("payments")} className={`px-8 py-4 rounded-xl font-rubik font-bold text-xl transition-all ${activeTab === "payments" ? "bg-gradient-to-r from-[#F0AA22] to-[#F05822] shadow-lg shadow-[#FDB515]/50 text-[#F9FBFD]" : "bg-[#124458] hover:bg-[#063A4F] text-[#F9FBFD]/80"}`}>Payments ({filteredPayments.length})</button>
           <button onClick={() => setActiveTab("dues")} className={`px-8 py-4 rounded-xl font-rubik font-bold text-xl transition-all ${activeTab === "dues" ? "bg-gradient-to-r from-[#F0AA22] to-[#F05822] shadow-lg shadow-[#FDB515]/50 text-[#F9FBFD]" : "bg-[#124458] hover:bg-[#063A4F] text-[#F9FBFD]/80"}`}>Manage Dues ({filteredDues.length})</button>
           <button onClick={() => setActiveTab("subadmins")} className={`px-8 py-4 rounded-xl font-rubik font-bold text-xl transition-all ${activeTab === "subadmins" ? "bg-gradient-to-r from-[#F0AA22] to-[#F05822] shadow-lg shadow-[#FDB515]/50 text-[#F9FBFD]" : "bg-[#124458] hover:bg-[#063A4F] text-[#F9FBFD]/80"}`}>SubAdmins ({filteredSubAdmins.length})</button>
+        <button onClick={() => setActiveTab("payouts")} className={`px-8 py-4 rounded-xl font-rubik font-bold text-xl transition-all ${activeTab === "payouts" ? "bg-gradient-to-r from-[#F0AA22] to-[#F05822] shadow-lg shadow-[#FDB515]/50 text-[#F9FBFD]" : "bg-[#124458] hover:bg-[#063A4F] text-[#F9FBFD]/80"}`}>Payouts</button>
         </div>
 
         {/* MATRIC SEARCH & DOWNLOAD */}
@@ -516,6 +579,71 @@ const handleSubmit = async (e: React.FormEvent) => {
     Paste from Flutterwave dashboard (optional)
   </p>
 </div>
+<div className="grid grid-cols-2 gap-4">
+  <div>
+    <label className="block mb-1">Bank Name</label>
+    <select
+      name="bankName"
+      value={formData.bankName || ""}
+      onChange={(e) => {
+        setFormData(prev => ({ ...prev, bankName: e.target.value }));
+        // Optional: auto set bankCode if you want to store it later
+      }}
+      className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]"
+    >
+      <option value="">Select Bank</option>
+      {banks.map(bank => (
+        <option key={bank.code} value={bank.name}>
+          {bank.name}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  <div>
+    <label className="block mb-1">Account Number</label>
+    <input
+      type="text"
+      name="accountNumber"
+      value={formData.accountNumber || ""}
+      onChange={handleInputChange}
+      className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]"
+      maxLength={10}
+    />
+  </div>
+</div>
+
+<div>
+  <label className="block mb-1">Account Name (Auto-verified)</label>
+  <input
+    type="text"
+    value={formData.accountName || ""}
+    readOnly
+    className="w-full p-3 rounded-lg bg-[#063A4F]/50 text-[#F9FBFD]"
+    placeholder="Will auto-fill after verification"
+  />
+  <button
+    type="button"
+    onClick={async () => {
+      if (!formData.accountNumber || !formData.bankName) return alert("Enter account number and select bank");
+      try {
+        const bank = banks.find(b => b.name === formData.bankName);
+        if (!bank) return alert("Invalid bank selected");
+
+        const res = await API.post("/flutterwave/verify-account", {
+          accountNumber: formData.accountNumber,
+          bankCode: bank.code
+        });
+        setFormData(prev => ({ ...prev, accountName: res.data.accountName }));
+      } catch (err) {
+        alert("Could not verify name");
+      }
+    }}
+    className="mt-2 px-4 py-2 bg-[#00B8C2] rounded-lg text-sm"
+  >
+    Verify Account Name
+  </button>
+</div>
                     <div>
                       <label className="block mb-1 font-oxygen">Description</label>
                       <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD]" required />
@@ -547,7 +675,130 @@ const handleSubmit = async (e: React.FormEvent) => {
             )}
           </motion.div>
         )}
+        {/* ================== PAYOUTS TABS ================== */}
+{activeTab === "payouts" && (
+  <motion.div 
+    initial={{ opacity: 0 }} 
+    animate={{ opacity: 1 }} 
+    className="max-w-6xl mx-auto bg-[#124458] rounded-3xl p-8 border border-[#063A4F]/20 shadow-xl"
+  >
+    <h2 className="text-4xl font-rubik font-bold mb-8 text-center bg-gradient-to-r from-[#FDB515] to-[#F05822] bg-clip-text text-transparent">
+      Manual Payouts to Associations
+    </h2>
 
+    {/* Dropdown to Select Due */}
+    <div className="mb-8">
+      <label className="block mb-2 text-lg font-medium text-[#F9FBFD]">Select Association/Due to Pay</label>
+      <select
+        value={selectedDueId}
+        onChange={(e) => {
+          setSelectedDueId(e.target.value);
+          setPayAmount(0); // Reset amount when changing due
+        }}
+        className="w-full md:w-1/2 p-4 rounded-xl bg-[#063A4F] text-[#F9FBFD] border border-[#063A4F]/30 focus:border-[#FDB515] outline-none"
+      >
+        <option value="">-- Choose Due --</option>
+        {dues.map(d => (
+          <option key={d._id} value={d._id}>
+            {d.name} - Pending: ₦{(pendingAmounts[d._id!] || 0).toLocaleString()}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* Show details & Pay button only when due is selected */}
+    {selectedDueId && (
+      <div className="bg-[#063A4F]/50 p-8 rounded-2xl border border-[#063A4F]/40">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="text-center bg-[#124458]/80 p-6 rounded-xl">
+            <p className="text-[#F9FBFD]/70 mb-2">Total Base Collected</p>
+            <p className="text-3xl font-bold text-[#00B8C2]">₦{(totalBase[selectedDueId] || 0).toLocaleString()}</p>
+          </div>
+          <div className="text-center bg-[#124458]/80 p-6 rounded-xl">
+            <p className="text-[#F9FBFD]/70 mb-2">Total Paid Out</p>
+            <p className="text-3xl font-bold text-[#FDB515]">₦{(totalPaid[selectedDueId] || 0).toLocaleString()}</p>
+          </div>
+          <div className="text-center bg-[#124458]/80 p-6 rounded-xl">
+            <p className="text-[#F9FBFD]/70 mb-2">Pending to Pay</p>
+            <p className="text-3xl font-bold text-[#F05822]">₦{(pendingAmounts[selectedDueId] || 0).toLocaleString()}</p>
+          </div>
+        </div>
+
+        {/* Amount Input + Pay Now Button */}
+        <div className="flex flex-col md:flex-row gap-4 items-end">
+          <div className="flex-1">
+            <label className="block mb-2 text-lg font-medium text-[#F9FBFD]">
+              Amount to Pay (max: ₦{(pendingAmounts[selectedDueId] || 0).toLocaleString()})
+            </label>
+            <input
+              type="number"
+              value={payAmount}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                setPayAmount(Math.min(val, pendingAmounts[selectedDueId] || 0));
+              }}
+              min={0}
+              max={pendingAmounts[selectedDueId] || 0}
+              className="w-full p-4 rounded-xl bg-[#063A4F] text-[#F9FBFD] border border-[#063A4F]/30 focus:border-[#FDB515] outline-none"
+              placeholder="Enter amount"
+            />
+          </div>
+
+          <button
+            onClick={() => handleInitiatePayout(selectedDueId)}
+            disabled={payAmount <= 0 || payAmount > (pendingAmounts[selectedDueId] || 0) || loadingPayout}
+            className={`px-10 py-4 rounded-xl font-bold text-[#F9FBFD] shadow-lg transition-all ${
+              loadingPayout 
+                ? "bg-[#063A4F] cursor-not-allowed" 
+                : "bg-gradient-to-r from-[#00B8C2] to-[#FDB515] hover:brightness-110"
+            }`}
+          >
+            {loadingPayout ? "Processing..." : "Pay Now"}
+          </button>
+        </div>
+
+        {/* Small note */}
+        <p className="mt-4 text-sm text-[#F9FBFD]/70 text-center">
+          This will transfer the amount to the association's account via Flutterwave.
+        </p>
+      </div>
+    )}
+
+    {/* Recent Payouts History Table */}
+    <div className="mt-12">
+      <h3 className="text-2xl font-bold mb-4 text-[#FDB515]">Recent Payouts</h3>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-[#063A4F]/70">
+            <tr>
+              <th className="p-4 text-left text-[#FDB515]">Due</th>
+              <th className="p-4 text-left text-[#FDB515]">Amount</th>
+              <th className="p-4 text-left text-[#FDB515]">Date</th>
+              <th className="p-4 text-left text-[#FDB515]">Reference</th>
+              <th className="p-4 text-left text-[#FDB515]">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {payouts.map(p => (
+              <tr key={p._id} className="border-t border-[#063A4F]/30 hover:bg-[#063A4F]/40">
+                <td className="p-4">{p.associationName}</td>
+                <td className="p-4 font-bold text-[#00B8C2]">₦{p.amount.toLocaleString()}</td>
+                <td className="p-4">{new Date(p.paidAt).toLocaleDateString()}</td>
+                <td className="p-4 truncate">{p.reference || "N/A"}</td>
+                <td className="p-4">
+                  <span className={`px-3 py-1 rounded-full text-sm ${p.status === "success" ? "bg-[#00B8C2]/30 text-[#00B8C2]" : "bg-[#F05822]/30 text-[#F05822]"}`}>
+                    {p.status.toUpperCase()}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </motion.div>
+)}
         {/* ================== SUBADMINS TAB ================== */}
         {activeTab === "subadmins" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-6xl mx-auto space-y-6">
