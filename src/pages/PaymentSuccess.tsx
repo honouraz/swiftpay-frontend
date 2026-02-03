@@ -1,5 +1,5 @@
 // src/pages/PaymentSuccess.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback} from "react";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://swiftpay-backend-djp0.onrender.com";
 
@@ -13,7 +13,7 @@ const PaymentSuccess: React.FC = () => {
       params.get("tx_ref");               // Flutterwave current
 
 
-  const downloadReceipt = () => {
+  const downloadReceipt = useCallback(() => {
     if (!reference) return;
   const receiptUrl = `${API_BASE_URL}/receipt-by-ref/${reference}`;
 
@@ -37,7 +37,7 @@ const PaymentSuccess: React.FC = () => {
     link.click();
     document.body.removeChild(link);
   }
-};
+}, [reference]);
 
   useEffect(() => { 
     if (!reference) {
@@ -60,7 +60,7 @@ const PaymentSuccess: React.FC = () => {
     };
     verify();
 
-  }, []);
+  }, [reference, downloadReceipt]);
 
   return (
     <div style={{

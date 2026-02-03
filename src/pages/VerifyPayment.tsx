@@ -47,7 +47,7 @@ const VerifyPayment: React.FC = () => {
     };
 
     if (reference) fetchPayment();
-  }, [reference]);
+  }, [reference, navigate]);
 
   if (loading) {
     return (

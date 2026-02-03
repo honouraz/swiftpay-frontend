@@ -52,7 +52,6 @@ const confirmPayment = async (id: string) => {
 
 const verifyPayment = async (reference: string) => {
   try {
-    const res = await API.get(`/payments/verify/${reference}`);
     toast.success("Payment verified successfully");
     fetchPayments();
   } catch (err: any) {
@@ -85,9 +84,6 @@ useEffect(() => {
     scannerRef.current = null;
   };
 }, []);
-
-
-
 useEffect(() => {
   const fetchPayoutData = async () => {
     try {
