@@ -1,8 +1,1 @@
-./dcredeploy.
-.
-..
-/
-.
-.m
-ff
-r
+s
