@@ -83,7 +83,7 @@ useEffect(() => {
     scannerRef.current?.clear();
     scannerRef.current = null;
   };
-}, []);
+}, [verifyPayment]);
 useEffect(() => {
   const fetchPayoutData = async () => {
     try {
