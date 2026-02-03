@@ -1,5 +1,5 @@
 // src/pages/SubAdminDashboard.tsx
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import API from "../utils/api";
 import { CSVLink } from "react-csv";
 import { motion } from "framer-motion";
@@ -40,6 +40,22 @@ const scannerRef = React.useRef<Html5QrcodeScanner | null>(null);
 const [pendingAmount, setPendingAmount] = useState<number>(0);
 const [payoutHistory, setPayoutHistory] = useState<any[]>([]); // array of payout records
 
+const fetchPayments = useCallback(async () => {
+  setLoading(true);
+  try {
+    const res = await API.get("/subadmin/payments");
+    setPayments(res.data || []);
+    console.log("Payments refreshed:", res.data.length);
+  } catch (err) {
+    console.error("Failed to load association payments:", err);
+  } finally {
+    setLoading(false);
+  }
+}
+, []);
+
+
+
 const confirmPayment = async (id: string) => {
   try {
     await API.post(`/payments/${id}/confirm`);
@@ -50,14 +66,14 @@ const confirmPayment = async (id: string) => {
   }
 };
 
-const verifyPayment = async (reference: string) => {
+const verifyPayment = useCallback(async (reference: string) => {
   try {
     toast.success("Payment verified successfully");
     fetchPayments();
   } catch (err: any) {
     toast.error(err.response?.data?.message || "Verification failed");
   }
-};
+}, [fetchPayments]);
 
 
 useEffect(() => {
@@ -101,19 +117,6 @@ useEffect(() => {
 
   console.log("Logged in subadmin:", user);
 
-  const fetchPayments = async () => {
-    setLoading(true);
-    try {
-      const res = await API.get("/subadmin/payments");
-      setPayments(res.data || []);
-      console.log("Payments refreshed:", res.data.length);
-    } catch (err) {
-      console.error("Failed to load association payments:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     fetchPayments(); // Initial fetch
 
@@ -125,7 +128,7 @@ useEffect(() => {
 
     // Cleanup interval when component unmounts
     return () => clearInterval(interval);
-  }, []); // Empty deps → runs once on mount + interval
+  }, [fetchPayments]); // Empty deps → runs once on mount + interval
 
   // Filter payments by search
   const filteredPayments = useMemo(() => {
