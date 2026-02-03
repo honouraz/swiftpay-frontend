@@ -140,13 +140,9 @@ useEffect(() => {
     );
   }, [payments, search]);
 
-  const confirmedPayments = filteredPayments.filter(p => p.confirmed);
+const totalStudents = filteredPayments.length;
+  const totalBase = filteredPayments.reduce((acc, p) => acc + (p.baseAmount || 0), 0);
 
-const totalStudents = confirmedPayments.length;
-const totalBase = confirmedPayments.reduce(
-  (acc, p) => acc + (p.baseAmount || 0),
-  0
-);
 
   if (loading && payments.length === 0) {
     return (
