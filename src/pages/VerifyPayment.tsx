@@ -1,6 +1,6 @@
 // src/pages/VerifyPayment.tsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import API from "../utils/api";
@@ -20,11 +20,20 @@ interface Payment {
 
 const VerifyPayment: React.FC = () => {
   const { reference } = useParams<{ reference: string }>();
+  const navigate = useNavigate();
   const [payment, setPayment] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+     const storedUser = localStorage.getItem("swiftpay_user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+
+  if (!user || user.role !== "subadmin") {
+    toast.error("Unauthorized access");
+    navigate("/login");
+    return;
+  }
     const fetchPayment = async () => {
       try {
         const res = await API.get(`/payments/verify/${reference}`);

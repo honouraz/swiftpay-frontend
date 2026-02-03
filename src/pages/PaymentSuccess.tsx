@@ -6,21 +6,15 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://swiftpay-bac
 const PaymentSuccess: React.FC = () => {
   const [message, setMessage] = useState("Verifying your payment...");
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(window.location.search);
     const reference = 
       params.get("reference") ||          // Paystack
       params.get("trxref") ||             // Flutterwave old
       params.get("tx_ref");               // Flutterwave current
 
-    if (!reference) {
-      setMessage("No payment reference found");
-      return;
-    }
 
-    setMessage("Payment successful! 🎉 Generating your receipt...");
-
- const downloadReceipt = () => {
+  const downloadReceipt = () => {
+    if (!reference) return;
   const receiptUrl = `${API_BASE_URL}/receipt-by-ref/${reference}`;
 
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -45,6 +39,14 @@ const PaymentSuccess: React.FC = () => {
   }
 };
 
+  useEffect(() => { 
+    if (!reference) {
+      setMessage("No payment reference found");
+      return;
+    }
+
+    setMessage("Payment successful! 🎉 Generating your receipt...");
+    
     setTimeout(() => {
       downloadReceipt();
       setMessage("Payment successful! 🎉 Receipt downloaded.");
@@ -85,6 +87,22 @@ const PaymentSuccess: React.FC = () => {
           go back to dashboard
         </a>
       </p>
+
+<button
+  onClick={downloadReceipt}
+  style={{
+    marginTop: 30,
+    padding: "14px 30px",
+    fontSize: 18,
+    background: "#00A86B",
+    color: "#000",
+    borderRadius: 10,
+    cursor: "pointer",
+  }}
+>
+  Download Receipt
+</button>
+
 
       <footer style={{ marginTop: 60 }}>
         SWIFTPAY BY HONOURAZ INVESTMENTS AND TECHNOLOGIES

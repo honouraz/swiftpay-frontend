@@ -5,12 +5,14 @@ import { CSVLink } from "react-csv";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 interface Payment {
   _id: string;
   payerName: string;
   userEmail: string;
   dueName: string;
+  confirmed: boolean;
   level?: string;
   baseAmount?: number;
   paidAt: string;
@@ -23,6 +25,7 @@ interface Payment {
   };
 }
 
+
 const SubAdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const storedUser = localStorage.getItem("swiftpay_user");
@@ -31,10 +34,59 @@ const SubAdminDashboard: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+const scannerRef = React.useRef<Html5QrcodeScanner | null>(null);
 
   const [totalPaidOut, setTotalPaidOut] = useState<number>(0);
 const [pendingAmount, setPendingAmount] = useState<number>(0);
 const [payoutHistory, setPayoutHistory] = useState<any[]>([]); // array of payout records
+
+const confirmPayment = async (id: string) => {
+  try {
+    await API.post(`/payments/${id}/confirm`);
+    toast.success("Payment confirmed");
+    fetchPayments();
+  } catch {
+    toast.error("Failed to confirm payment");
+  }
+};
+
+const verifyPayment = async (reference: string) => {
+  try {
+    const res = await API.get(`/payments/verify/${reference}`);
+    toast.success("Payment verified successfully");
+    fetchPayments();
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Verification failed");
+  }
+};
+
+
+useEffect(() => {
+  if (!document.getElementById("qr-reader")) return;
+
+  if (!scannerRef.current) {
+    scannerRef.current = new Html5QrcodeScanner(
+      "qr-reader",
+      { fps: 10, qrbox: 250 },
+      false
+    );
+
+    scannerRef.current.render(
+      (text) => {
+        verifyPayment(text);
+        scannerRef.current?.clear();
+      },
+      () => {}
+    );
+  }
+
+  return () => {
+    scannerRef.current?.clear();
+    scannerRef.current = null;
+  };
+}, []);
+
+
 
 useEffect(() => {
   const fetchPayoutData = async () => {
@@ -89,8 +141,13 @@ useEffect(() => {
     );
   }, [payments, search]);
 
-  const totalStudents = filteredPayments.length;
-  const totalBase = filteredPayments.reduce((acc, p) => acc + (p.baseAmount || 0), 0);
+  const confirmedPayments = filteredPayments.filter(p => p.confirmed);
+
+const totalStudents = confirmedPayments.length;
+const totalBase = confirmedPayments.reduce(
+  (acc, p) => acc + (p.baseAmount || 0),
+  0
+);
 
   if (loading && payments.length === 0) {
     return (
@@ -133,6 +190,8 @@ useEffect(() => {
           Logout
         </motion.button>
       </div>
+
+<div id="qr-reader" className="w-full max-w-md mx-auto my-8" />
 
       {/* Stats Cards */}
       <div className="grid md:grid-cols-3 gap-6 mb-10">
@@ -207,6 +266,7 @@ useEffect(() => {
                 <th className="p-5 font-bold text-[#FDB515]">Due</th>
                 <th className="p-5 font-bold text-[#FDB515]">Level</th>
                 <th className="p-5 font-bold text-[#FDB515]">Amount</th>
+                <th className="p-5 font-bold text-[#FDB515]">Confirmed</th>
                 <th className="p-5 font-bold text-[#FDB515]">Date</th>
               </tr>
             </thead>
@@ -233,6 +293,25 @@ useEffect(() => {
                     <td className="p-5">{p.metadata?.department || "-"}</td>
                     <td className="p-5 font-medium text-[#FDB515]">{p.dueName}</td>
                     <td className="p-5">{p.metadata?.level || "-"}</td>
+                    <td className="p-5">
+  {p.confirmed ? (
+  <div className="flex flex-col text-green-400 font-bold">
+    ✔ Confirmed
+    <span className="text-xs text-[#F9FBFD]/60">
+      by Sub-Admin
+    </span>
+  </div>
+) : (
+  <button
+    onClick={() => confirmPayment(p._id)}
+    className="px-3 py-1 bg-yellow-500 rounded text-black"
+  >
+    Confirm Payment ✔
+  </button>
+)}
+
+</td>
+
                     <td className="p-5 font-bold text-[#00B8C2]">₦{(p.baseAmount || 0).toLocaleString()}</td>
                     <td className="p-5 text-[#F9FBFD]/80">
                       {new Date(p.paidAt).toLocaleDateString("en-GB", {
@@ -360,3 +439,4 @@ useEffect(() => {
 };
 
 export default SubAdminDashboard;
+
