@@ -35,10 +35,12 @@ const SubAdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 const scannerRef = React.useRef<Html5QrcodeScanner | null>(null);
+const [scanActive, setScanActive] = useState(false);
 
   const [totalPaidOut, setTotalPaidOut] = useState<number>(0);
 const [pendingAmount, setPendingAmount] = useState<number>(0);
 const [payoutHistory, setPayoutHistory] = useState<any[]>([]); // array of payout records
+
 
 const fetchPayments = useCallback(async () => {
   setLoading(true);
@@ -54,52 +56,71 @@ const fetchPayments = useCallback(async () => {
 }
 , []);
 
+const confirmAndRefresh = useCallback(
+  async (idOrRef: string, mode: "id" | "ref") => {
+    if (mode === "id") {
+      setPayments(prev =>
+        prev.map(p =>
+          p._id === idOrRef ? { ...p, confirmed: true } : p
+        )
+      );
+    }
 
-
-const confirmPayment = async (id: string) => {
-  try {
-    await API.post(`/payments/${id}/confirm`);
-    toast.success("Payment confirmed");
-    fetchPayments();
-  } catch {
-    toast.error("Failed to confirm payment");
+    try {
+  if (mode === "id") {
+    await API.post(`/payments/${idOrRef}/confirm`);
+  } else {
+    const res = await API.post(`/payments/verify/${idOrRef}`);
+    if (res.data.status === "already_confirmed") {
+      toast.info("Payment was already confirmed");
+    }
   }
-};
+  toast.success("Payment confirmed ✅");
+  await fetchPayments();
+} catch (err: any) {
+  toast.error(err.response?.data?.message || "Confirmation failed");
+}
 
-const verifyPayment = useCallback(async (reference: string) => {
-  try {
-    toast.success("Payment verified successfully");
-    fetchPayments();
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Verification failed");
-  }
-}, [fetchPayments]);
+  },
+  [fetchPayments]
+);
+
+
 
 
 useEffect(() => {
-  if (!document.getElementById("qr-reader")) return;
+  if (!scanActive) return;
 
-  if (!scannerRef.current) {
-    scannerRef.current = new Html5QrcodeScanner(
-      "qr-reader",
-      { fps: 10, qrbox: 250 },
-      false
-    );
+  scannerRef.current = new Html5QrcodeScanner(
+    "qr-reader",
+    { fps: 10, qrbox: 250 },
+    false
+  );
 
-    scannerRef.current.render(
-      (text) => {
-        verifyPayment(text);
-        scannerRef.current?.clear();
-      },
-      () => {}
-    );
-  }
+  scannerRef.current.render(
+    async (text) => {
+      if (!scanActive) return; // lock to prevent multiple calls
+      setScanActive(false); // stop further scans
+      await confirmAndRefresh(text, "ref");
+
+      scannerRef.current?.clear();
+      scannerRef.current = null;
+      setScanActive(false);
+
+      // ✅ MOVE TO VERIFY PAGE
+      navigate(`/verify-payment/${text}`);
+    },
+    () => {}
+  );
+  
 
   return () => {
     scannerRef.current?.clear();
     scannerRef.current = null;
   };
-}, [verifyPayment]);
+}, [scanActive, confirmAndRefresh, navigate]);
+
+
 useEffect(() => {
   const fetchPayoutData = async () => {
     try {
@@ -140,13 +161,9 @@ useEffect(() => {
     );
   }, [payments, search]);
 
-  const confirmedPayments = filteredPayments.filter(p => p.confirmed);
+const totalStudents = filteredPayments.length;
+  const totalBase = filteredPayments.reduce((acc, p) => acc + (p.baseAmount || 0), 0);
 
-const totalStudents = confirmedPayments.length;
-const totalBase = confirmedPayments.reduce(
-  (acc, p) => acc + (p.baseAmount || 0),
-  0
-);
 
   if (loading && payments.length === 0) {
     return (
@@ -190,7 +207,6 @@ const totalBase = confirmedPayments.reduce(
         </motion.button>
       </div>
 
-<div id="qr-reader" className="w-full max-w-md mx-auto my-8" />
 
       {/* Stats Cards */}
       <div className="grid md:grid-cols-3 gap-6 mb-10">
@@ -246,6 +262,19 @@ const totalBase = confirmedPayments.reduce(
           </motion.button>
         </CSVLink>
       </div>
+      <div className="text-center my-6">
+  <button
+    onClick={() => setScanActive(true)}
+    className="px-6 py-3 bg-green-500 text-black font-bold rounded-lg"
+  >
+    📷 Scan Receipt QR
+  </button>
+</div>
+
+{scanActive && (
+  <div id="qr-reader" className="w-full max-w-md mx-auto my-8" />
+)}
+
 
       {/* Payments Table */}
       <motion.div
@@ -264,8 +293,8 @@ const totalBase = confirmedPayments.reduce(
                 <th className="p-5 font-bold text-[#FDB515]">Department</th>
                 <th className="p-5 font-bold text-[#FDB515]">Due</th>
                 <th className="p-5 font-bold text-[#FDB515]">Level</th>
-                <th className="p-5 font-bold text-[#FDB515]">Amount</th>
                 <th className="p-5 font-bold text-[#FDB515]">Confirmed</th>
+                <th className="p-5 font-bold text-[#FDB515]">Amount</th>
                 <th className="p-5 font-bold text-[#FDB515]">Date</th>
               </tr>
             </thead>
@@ -278,14 +307,24 @@ const totalBase = confirmedPayments.reduce(
                   </td>
                 </tr>
               ) : (
-                filteredPayments.map((p) => (
+filteredPayments.map((p) => {
+  const isConfirmed = p.confirmed === true;
+
+  return (
                   <motion.tr
-                    key={p._id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="border-t border-[#063A4F]/30 hover:bg-[#063A4F]/40 transition-colors"
-                  >
+  key={p._id}
+  initial={{ opacity: 0, y: 10 }}
+  animate={
+    isConfirmed
+      ? { scale: [1, 1.02, 1], backgroundColor: "rgba(34,197,94,0.08)" }
+      : { opacity: 1, y: 0 }
+  }
+  transition={{ duration: 0.6 }}
+  className={`border-t border-[#063A4F]/30 transition-colors ${
+    isConfirmed ? "bg-green-500/10" : "hover:bg-[#063A4F]/40"
+  }`}
+>
+
                     <td className="p-5">{p.metadata?.payerName || "N/A"}</td>
                     <td className="p-5">{p.userEmail || "N/A"}</td>
                     <td className="p-5">{p.metadata?.matricNumber || "-"}</td>
@@ -294,20 +333,27 @@ const totalBase = confirmedPayments.reduce(
                     <td className="p-5">{p.metadata?.level || "-"}</td>
                     <td className="p-5">
   {p.confirmed ? (
-  <div className="flex flex-col text-green-400 font-bold">
+  <div className="flex items-center gap-2 text-green-400 font-bold">
+    <span className="w-3 h-3 rounded-full bg-green-400" />
     ✔ Confirmed
-    <span className="text-xs text-[#F9FBFD]/60">
-      by Sub-Admin
-    </span>
   </div>
 ) : (
-  <button
-    onClick={() => confirmPayment(p._id)}
-    className="px-3 py-1 bg-yellow-500 rounded text-black"
-  >
-    Confirm Payment ✔
-  </button>
+ <button
+  onClick={() => confirmAndRefresh(p._id, "id")}
+  disabled={p.confirmed}
+  className={`px-4 py-2 font-bold rounded-lg transition
+    ${
+      p.confirmed
+        ? "bg-gray-400 cursor-not-allowed text-gray-700"
+        : "bg-yellow-400 hover:bg-yellow-500 text-black"
+    }
+  `}
+>
+  ✔ Confirm Payment
+</button>
+
 )}
+
 
 </td>
 
@@ -320,7 +366,8 @@ const totalBase = confirmedPayments.reduce(
                       })}
                     </td>
                   </motion.tr>
-                ))
+                );
+              })
               )}
             </tbody>
           </table>
@@ -438,4 +485,3 @@ const totalBase = confirmedPayments.reduce(
 };
 
 export default SubAdminDashboard;
-

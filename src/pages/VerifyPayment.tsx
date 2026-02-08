@@ -31,13 +31,13 @@ const VerifyPayment: React.FC = () => {
 
   if (!user || user.role !== "subadmin") {
     toast.error("Unauthorized access");
-    navigate("/login");
+    navigate("/");
     return;
   }
     const fetchPayment = async () => {
       try {
         const res = await API.get(`/payments/verify/${reference}`);
-        setPayment(res.data);
+        setPayment(res.data.payment);
       } catch (err: any) {
         setError(err.response?.data?.message || "Invalid or expired reference");
         toast.error("Payment verification failed");
@@ -47,7 +47,18 @@ const VerifyPayment: React.FC = () => {
     };
 
     if (reference) fetchPayment();
+    
   }, [reference, navigate]);
+  
+
+  useEffect(() => {
+  const timer = setTimeout(() => {
+    navigate(-1); // go back to dashboard
+  }, 10000); // 10 seconds
+
+  return () => clearTimeout(timer);
+}, []);
+
 
   if (loading) {
     return (
