@@ -106,9 +106,6 @@ useEffect(() => {
       scannerRef.current?.clear();
       scannerRef.current = null;
       setScanActive(false);
-
-      // ✅ MOVE TO VERIFY PAGE
-navigate(`/verify/${text}`);
     },
     () => {}
   );

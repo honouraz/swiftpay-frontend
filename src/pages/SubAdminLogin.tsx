@@ -91,7 +91,7 @@ const SubAdminLogin = () => {
 
           <p className="text-center mt-10 text-[#063A4F]/70 font-oxygen">
             MAIN LOGIN?{" "}
-            <Link to="/login" className="font-bold text-[#00B8C2] hover:text-[#FDB515] transition">
+            <Link to="/" className="font-bold text-[#00B8C2] hover:text-[#FDB515] transition">
               GO TO USER LOGIN →
             </Link>
           </p>
