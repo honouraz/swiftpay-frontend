@@ -108,7 +108,7 @@ useEffect(() => {
       setScanActive(false);
 
       // ✅ MOVE TO VERIFY PAGE
-      navigate(`/verify-payment/${text}`);
+navigate(`/verify/${text}`);
     },
     () => {}
   );
