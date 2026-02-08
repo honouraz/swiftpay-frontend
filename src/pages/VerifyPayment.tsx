@@ -57,7 +57,7 @@ const VerifyPayment: React.FC = () => {
   }, 10000); // 10 seconds
 
   return () => clearTimeout(timer);
-}, []);
+}, [navigate]);
 
 
   if (loading) {
