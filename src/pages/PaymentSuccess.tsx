@@ -39,28 +39,35 @@ const PaymentSuccess: React.FC = () => {
   }
 }, [reference]);
 
-  useEffect(() => { 
-    if (!reference) {
-      setMessage("No payment reference found");
-      return;
+  useEffect(() => {
+  if (!reference) {
+    setMessage("❌ No payment reference found");
+    return;
+  }
+
+  const checkPaymentStatus = async () => {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/api/payments/status/${reference}`
+      );
+
+      const data = await res.json();
+
+      if (data.status !== "success") {
+        setMessage("❌ Payment not completed. Please try again.");
+        return;
+      }
+
+      setMessage("✅ Payment successful! 🎉 Generating your receipt...");
+      setTimeout(downloadReceipt, 1200);
+    } catch (err) {
+      setMessage("⚠️ Unable to verify payment. Please refresh.");
     }
+  };
 
-    setMessage("Payment successful! 🎉 Generating your receipt...");
-    
-    setTimeout(() => {
-      downloadReceipt();
-      setMessage("Payment successful! 🎉 Receipt downloaded.");
-    }, 1500);
+  checkPaymentStatus();
+}, [reference, downloadReceipt]);
 
-    // Optional verify (no harm)
-    const verify = async () => {
-      try {
-        await fetch(`${API_BASE_URL}/api/payments/flutterwave/verify/${reference}`);
-      } catch {}
-    };
-    verify();
-
-  }, [reference, downloadReceipt]);
 
   return (
     <div style={{
