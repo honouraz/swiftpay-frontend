@@ -594,9 +594,12 @@ const handleInitiatePayout = async (dueId: string) => {
     >
       <option value="">Select Bank</option>
       {banks.map(bank => (
-        <option key={bank.code} value={bank.name}>
+        <><option key={bank.code} value={bank.name}>
           {bank.name}
-        </option>
+        </option><select>
+            value={bank.code}
+          </select></>
+
       ))}
     </select>
   </div>
@@ -780,21 +783,19 @@ const handleInitiatePayout = async (dueId: string) => {
               <th className="p-4 text-left text-[#FDB515]">Status</th>
             </tr>
           </thead>
-          <tbody>
-            {payouts.map(p => (
-              <tr key={p._id} className="border-t border-[#063A4F]/30 hover:bg-[#063A4F]/40">
-                <td className="p-4">{p.associationName}</td>
-                <td className="p-4 font-bold text-[#00B8C2]">₦{p.amount.toLocaleString()}</td>
-                <td className="p-4">{new Date(p.paidAt).toLocaleDateString()}</td>
-                <td className="p-4 truncate">{p.reference || "N/A"}</td>
-                <td className="p-4">
-                  <span className={`px-3 py-1 rounded-full text-sm ${p.status === "success" ? "bg-[#00B8C2]/30 text-[#00B8C2]" : "bg-[#F05822]/30 text-[#F05822]"}`}>
-                    {p.status.toUpperCase()}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+<tbody>
+  {payouts.flatMap((p) =>
+    (p.payouts || []).map((entry: { amount: { toLocaleString: () => string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }; paidAt: string | number | Date; reference: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; status: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }, index: any) => (
+      <tr key={`${p._id || p.associationName || 'due'}-${index}`}>
+        <td>{p.associationName}</td>
+        <td>₦{entry.amount.toLocaleString()}</td>
+        <td>{new Date(entry.paidAt).toLocaleDateString()}</td>
+        <td>{entry.reference}</td>
+        <td>{entry.status}</td>
+      </tr>
+    ))
+  )}
+</tbody>
         </table>
       </div>
     </div>
