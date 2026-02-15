@@ -24,6 +24,8 @@ const Login = () => {
       setLoading(false);
     }
   };
+  const [showPassword, setShowPassword] = useState(false);
+
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: 'url("../assets/bg.jpg")' }}>
@@ -66,13 +68,17 @@ const Login = () => {
             />
 
             <input
-              type="password"
-              required
+type={showPassword ? "text" : "password"}              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter password"
               className="w-full px-6 py-5 text-lg bg-[#124458] border border-[#063A4F]/30 rounded-xl text-[#F9FBFD] placeholder-[#F9FBFD]/50 focus:outline-none focus:border-[#FDB515] focus:ring-4 focus:ring-[#FDB515]/30 transition-all duration-300 font-oxygen"
-            />
+            /><button
+  type="button"
+  onClick={() => setShowPassword(prev => !prev)}
+>
+  {showPassword ? "Hide" : "Show"}
+</button>
 
             {/* KILLER BUTTON – Monnify primary gradient with shadow hover */}
             <motion.button

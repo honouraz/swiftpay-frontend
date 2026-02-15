@@ -37,6 +37,26 @@ const SubAdminDashboard: React.FC = () => {
 const scannerRef = React.useRef<Html5QrcodeScanner | null>(null);
 const [scanActive, setScanActive] = useState(false);
 
+const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+
+const handleLevelChange = (level: string) => {
+  setSelectedLevels(prev =>
+    prev.includes(level)
+      ? prev.filter(l => l !== level)
+      : [...prev, level]
+  );
+};
+useEffect(() => {
+  const fetchPayments = async () => {
+    const query = selectedLevels.join(",");
+    const res = await API.get(`/payments?levels=${query}`);
+    setPayments(res.data);
+  };
+
+  fetchPayments();
+}, [selectedLevels]);
+
+
   const [totalPaidOut, setTotalPaidOut] = useState<number>(0);
 const [pendingAmount, setPendingAmount] = useState<number>(0);
 const [payoutHistory, setPayoutHistory] = useState<any[]>([]); // array of payout records
@@ -477,8 +497,22 @@ filteredPayments.map((p) => {
     </div>
   )}
 </motion.div>
-  </div>
+<div className="flex gap-4">
+  {["100", "200", "300", "400"].map(level => (
+    <label key={level} className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        checked={selectedLevels.includes(level)}
+        onChange={() => handleLevelChange(level)}
+      />
+      {level} Level
+    </label>
+  ))}
+</div>
+    </div>
   );
+
+  
 };
 
 export default SubAdminDashboard;

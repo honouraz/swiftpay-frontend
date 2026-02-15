@@ -768,6 +768,21 @@ const handleInitiatePayout = async (dueId: string) => {
         </p>
       </div>
     )}
+<input
+  type="number"
+  placeholder="Amount"
+/>
+
+<input
+  type="text"
+  placeholder="Bank Transfer Reference"
+/>
+
+<textarea
+  placeholder="Note (optional)"
+/>
+
+<button>Record Manual Payout</button>
 
     {/* Recent Payouts History Table */}
     <div className="mt-12">
