@@ -46,16 +46,6 @@ const handleLevelChange = (level: string) => {
       : [...prev, level]
   );
 };
-useEffect(() => {
-  const fetchPayments = async () => {
-    const query = selectedLevels.join(",");
-    const res = await API.get(`/payments?levels=${query}`);
-    setPayments(res.data);
-  };
-
-  fetchPayments();
-}, [selectedLevels]);
-
 
   const [totalPaidOut, setTotalPaidOut] = useState<number>(0);
 const [pendingAmount, setPendingAmount] = useState<number>(0);
@@ -169,14 +159,22 @@ useEffect(() => {
   }, [fetchPayments]); // Empty deps → runs once on mount + interval
 
   // Filter payments by search
-  const filteredPayments = useMemo(() => {
-    return payments.filter(p =>
-      p.payerName?.toLowerCase().includes(search.toLowerCase()) ||
+ const filteredPayments = useMemo(() => {
+  return payments.filter(p => {
+    const matchesSearch =
+      p.metadata?.payerName?.toLowerCase().includes(search.toLowerCase()) ||
       p.userEmail?.toLowerCase().includes(search.toLowerCase()) ||
       p.metadata?.matricNumber?.toLowerCase().includes(search.toLowerCase()) ||
-      p.dueName?.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [payments, search]);
+      p.dueName?.toLowerCase().includes(search.toLowerCase());
+
+    const matchesLevel =
+      selectedLevels.length === 0 ||
+      selectedLevels.includes(p.metadata?.level || "");
+
+    return matchesSearch && matchesLevel;
+  });
+}, [payments, search, selectedLevels]);
+
 
 const totalStudents = filteredPayments.length;
   const totalBase = filteredPayments.reduce((acc, p) => acc + (p.baseAmount || 0), 0);

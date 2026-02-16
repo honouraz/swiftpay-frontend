@@ -15,6 +15,7 @@ import MyTransactions from "./pages/MyTransactions";
 import SubAdminDashboard from "./pages/SubAdminDashboard";
 import SubAdminLogin from "./pages/SubAdminLogin";
 import VerifyPayment from "./pages/VerifyPayment";
+import ForgotPassword from "./pages/ForgotPassword";
 let AuthProvider: any = ({ children }: any) => children;
 try {
   AuthProvider = require("./context/AuthContext").AuthProvider;
@@ -35,7 +36,9 @@ export default function AppRoutes() {
           <Route path="/dashboard" element={<Layout><ProtectedRoute><Dashboard /></ProtectedRoute></Layout>} />
           <Route path="/payment" element={<Layout><ProtectedRoute><Payment /></ProtectedRoute></Layout>} />
           <Route path="/profile" element={<Layout><ProtectedRoute><Profile /></ProtectedRoute></Layout>} />
-          <Route path="/my-transactions" element={<Layout><ProtectedRoute><MyTransactions /></ProtectedRoute></Layout>} />
+          
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/my-transactions" element={<Layout><ProtectedRoute><MyTransactions /></ProtectedRoute></Layout>} />
           {/* SUCCESS PAGE AFTER PAYSTACK */}
           <Route path="/payment-success" element={<PaymentSuccess />} />   {/* ← CORRECT SPELLING */}
 

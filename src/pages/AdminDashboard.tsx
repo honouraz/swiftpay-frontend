@@ -121,6 +121,26 @@ useEffect(() => {
   });
 }, []);
 
+const handleDownloadReceiptById = async (paymentId: string) => {
+  try {
+    const res = await API.get(`/payments/${paymentId}/receipt`, {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `receipt-${paymentId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+  } catch (err) {
+    toast.error("Failed to download receipt");
+  }
+};
+
+
   const [showSubAdminModal, setShowSubAdminModal] = useState(false);
   const [subAdminForm, setSubAdminForm] = useState({ name: "", email: "", password: "", association: "" });
   const [matricSearch, setMatricSearch] = useState("");
@@ -226,10 +246,13 @@ const totalExtraCharges = useMemo(
   [filteredPayments]
 );
 
+const [manualAmount, setManualAmount] = useState<number>(0);
+const [manualReference, setManualReference] = useState("");
+const [manualNote, setManualNote] = useState("");
 
-  const totalPending = useMemo(() => filteredPayments.filter(p => p.status === "pending").length, [filteredPayments]);
-  const totalSuccess = useMemo(() => filteredPayments.filter(p => p.status === "success").length, [filteredPayments]);
-  const totalFailed = useMemo(() => filteredPayments.filter(p => p.status === "failed").length, [filteredPayments]);
+ const totalPending = payments.filter(p => p.status === "pending").length;
+const totalSuccess = payments.filter(p => p.status === "success").length;
+const totalFailed = payments.filter(p => p.status === "failed").length;
 
   // ===== HANDLERS =====
  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -297,6 +320,8 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 };
 
+
+
 const handleInitiatePayout = async (dueId: string) => {
   if (payAmount <= 0 || payAmount > (pendingAmounts[dueId] || 0)) {
     toast.error("Invalid amount");
@@ -317,19 +342,27 @@ const handleInitiatePayout = async (dueId: string) => {
   }
 };
 
-  const handleDownloadReceipt = async (matric: string) => {
-    if (!matric) return alert("Enter a matric number");
-    try {
-      const res = await API.get(`/payments/receipt/${matric}`, { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `receipt_${matric}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (err) { console.error(err); alert("Receipt not found"); }
-  };
+  const handleDownloadReceiptByMatric = async (matric: string) => {
+  if (!matric) return toast.error("Enter matric number");
+
+  try {
+    const res = await API.get(`/payments/receipt/matric/${matric}`, {
+      responseType: "blob"
+    });
+
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `receipt_${matric}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+  } catch (err) {
+    toast.error("Receipt not found");
+  }
+};
+
     if (!isAdmin) return <div className="min-h-screen flex items-center justify-center text-[#F9FBFD]">Access Denied</div>;
   if (loading) return <div className="min-h-screen flex items-center justify-center text-[#F9FBFD]">Loading...</div>;
 
@@ -342,6 +375,40 @@ const handleInitiatePayout = async (dueId: string) => {
     .reduce((acc, p) => acc + (p.baseAmount || p.amount || 0), 0);
   return sumB - sumA;
 });
+const handleManualPayout = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!selectedDueId) {
+    toast.error("Select a due first");
+    return;
+  }
+
+  if (manualAmount <= 0) {
+    toast.error("Enter valid amount");
+    return;
+  }
+
+  try {
+    await API.post("/payments/payouts/manual", {
+      dueId: selectedDueId,
+      amount: manualAmount,
+      reference: manualReference,
+      note: manualNote,
+    });
+
+    toast.success("Manual payout recorded successfully!");
+
+    setManualAmount(0);
+    setManualReference("");
+    setManualNote("");
+    fetchData();
+
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to record payout");
+  }
+};
+
 
   return (
     <ProtectedRoute adminOnly>
@@ -458,7 +525,7 @@ const handleInitiatePayout = async (dueId: string) => {
             className="p-3 rounded-lg bg-[#063A4F] text-[#F9FBFD] w-1/3 font-oxygen border border-[#063A4F]/30 focus:border-[#FDB515]"
           />
           <button
-            onClick={() => handleDownloadReceipt(matricSearch)}
+            onClick={() => handleDownloadReceiptByMatric(matricSearch)}
             className="px-6 py-3 bg-gradient-to-r from-[#F0AA22] to-[#F05822] rounded-xl font-rubik font-bold text-[#F9FBFD]"
           >
             Download Receipt
@@ -495,6 +562,8 @@ const handleInitiatePayout = async (dueId: string) => {
                   <tr>
                     <th className="text-left p-4 text-[#F9FBFD]">Name</th>
                     <th className="text-left p-4 text-[#F9FBFD]">Matric Number</th>
+                    <th className="p-5 font-bold text-[#FDB515]">Receipt</th>
+
                     <th className="text-left p-4 text-[#F9FBFD]">Email</th>
                     <th className="text-left p-4 text-[#F9FBFD]">Due</th>
                     <th className="text-left p-4 text-[#F9FBFD]">Level</th>
@@ -510,6 +579,15 @@ const handleInitiatePayout = async (dueId: string) => {
                     <tr key={p._id} className="border-t border-[#063A4F]/20">
                       <td className="p-4">{p.metadata?.payerName || "Anonymous"}</td>
                       <td className="p-4">{p.metadata?.matricNumber || "-"}</td>
+                      <td className="p-5">
+  <button
+    onClick={() => handleDownloadReceiptById(p._id)}
+    className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+  >
+    Download
+  </button>
+</td>
+
                       <td className="p-4">{p.userEmail}</td>
                       <td className="p-4">{p.metadata?.dueName}</td>
                       <td className="p-4">{p.metadata?.level || "-"}</td>
@@ -594,13 +672,11 @@ const handleInitiatePayout = async (dueId: string) => {
     >
       <option value="">Select Bank</option>
       {banks.map(bank => (
-        <><option key={bank.code} value={bank.name}>
-          {bank.name}
-        </option><select>
-            value={bank.code}
-          </select></>
+  <option key={bank.code} value={bank.name}>
+    {bank.name}
+  </option>
+))}
 
-      ))}
     </select>
   </div>
 
@@ -768,21 +844,41 @@ const handleInitiatePayout = async (dueId: string) => {
         </p>
       </div>
     )}
-<input
-  type="number"
-  placeholder="Amount"
-/>
+<form onSubmit={handleManualPayout} className="mt-6 space-y-4">
 
-<input
-  type="text"
-  placeholder="Bank Transfer Reference"
-/>
+  <input
+    type="number"
+    value={manualAmount}
+    onChange={(e) => setManualAmount(Number(e.target.value))}
+    placeholder="Amount"
+    className="w-full p-3 rounded-lg bg-[#063A4F] text-white"
+  />
 
-<textarea
-  placeholder="Note (optional)"
-/>
+  <input
+    type="text"
+    value={manualReference}
+    onChange={(e) => setManualReference(e.target.value)}
+    placeholder="Bank Transfer Reference"
+    className="w-full p-3 rounded-lg bg-[#063A4F] text-white"
+  />
 
-<button>Record Manual Payout</button>
+  <textarea
+    value={manualNote}
+    onChange={(e) => setManualNote(e.target.value)}
+    placeholder="Note (optional)"
+    className="w-full p-3 rounded-lg bg-[#063A4F] text-white"
+  />
+
+  <button
+    type="submit"
+    className="px-6 py-3 bg-[#F05822] rounded-xl font-bold"
+  >
+    Record Manual Payout
+  </button>
+
+</form>
+
+
 
     {/* Recent Payouts History Table */}
     <div className="mt-12">
