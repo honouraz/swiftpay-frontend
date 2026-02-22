@@ -112,7 +112,10 @@ const PaymentSuccess: React.FC = () => {
 
 
       <footer style={{ marginTop: 60 }}>
-        SWIFTPAY BY HONOURAZ INVESTMENTS AND TECHNOLOGIES
+        SWIFTPAY BY HONOURAZ INVESTMENTS AND TECHNOLOGIES.
+        <p>IF RECEIPT NOT DOWNLOADING, PENDING AFTER PAYMENT, CONTACT 08127327090 VIA WHATSAPP OR CALL.
+        </p>
+      <p>YOU CAN ALSO REACH OUT VIA EMAIL </p>
       </footer>
     </div>
   );
