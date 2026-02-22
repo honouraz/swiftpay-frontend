@@ -22,11 +22,17 @@ const MyTransactions = () => {
 
   const csvData = transactions.map((t) => ({
     Date: new Date(t.paidAt).toLocaleDateString(),
-    Due: t.dueName || "SwiftPay Payment",
+    Student: t.metadata?.payerName || "N/A",
+    Matric: t.metadata?.matricNumber || "-",
+    Due: t.metadata?.dueName || "SwiftPay Payment",
     Amount: `₦${t.amount?.toLocaleString()}`,
     Status: t.status,
     Reference: t.reference,
   }));
+
+  const handleViewReceipt = (reference: string) => {
+    window.open(`${API.defaults.baseURL}/receipt-by-ref/${reference}`, "_blank");
+  };
 
   return (
     <ProtectedRoute>
@@ -54,22 +60,34 @@ const MyTransactions = () => {
               <table className="w-full">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="p-4 text-left">Date</th>
-                    <th className="p-4 text-left">Due</th>
-                    <th className="p-4 text-left">Amount</th>
-                    <th className="p-4 text-left">Status</th>
-                  </tr>
+                    <th>Date</th>
+  <th>Student Name</th>
+  <th>Matric No</th>
+  <th>Due</th>
+  <th>Level</th>
+  <th>Amount</th>
+  <th>Status</th>
+  <th>Receipt</th>
+   </tr>
                 </thead>
                 <tbody>
                   {transactions.map((t) => (
                     <tr key={t._id} className="border-b hover:bg-gray-50">
                       <td className="p-4">{new Date(t.paidAt).toLocaleDateString()}</td>
-                      <td className="p-4">{t.dueName || "SwiftPay Payment"}</td>
+                      <td className="p-4">{t.metadata?.payerName || "N/A"}</td>
+                      <td className="p-4">{t.metadata?.matricNumber || "-"}</td>
+                      <td className="p-4">{t.metadata?.dueName || "SwiftPay Payment"}</td>
+                      <td className="p-4">{t.metadata?.level || "-"}</td>
                       <td className="p-4 font-bold">₦{t.amount?.toLocaleString()}</td>
                       <td className="p-4">
                         <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
                           {t.status}
                         </span>
+                      </td>
+                      <td className="p-4">
+                        <button onClick={() => handleViewReceipt(t.reference)} className="flex items-center gap-1 text-[#063A4F] hover:text-[#FDB515]">
+  <span>📄</span> Receipt
+</button>
                       </td>
                     </tr>
                   ))}

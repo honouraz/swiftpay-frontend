@@ -117,7 +117,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <div className="mt-8 text-center text-sm md:text-base text-[#F9FBFD]/70 font-oxygen">
-          © 2025 SwiftPay by HonTech. All rights reserved.
+          © 2026 SwiftPay by HonTech. All rights reserved.
         </div>
       </footer>
     </div>

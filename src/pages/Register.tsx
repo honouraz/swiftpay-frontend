@@ -1,14 +1,15 @@
-// src/pages/Register.tsx – MONNIFY-INSPIRED: ELEGANT FORM, GRADIENT ACCENTS, SMOOTH TRANSITIONS
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { toast } from "react-toastify";
-import { useAuth } from "../context/AuthContext";
+// src/pages/Register.tsx
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
+import Input from '../components/Input';
 
 const Register = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
@@ -18,85 +19,71 @@ const Register = () => {
     setLoading(true);
     try {
       await register(email, password, name);
-      toast.success("Account created! Welcome To SwiftPay! 🔥");
-      navigate("/");
+      toast.success('Account created! Welcome to SwiftPay 🔥');
+      navigate('/dashboard');
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Try again");
+      toast.error(err?.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: 'url("../assets/bg.jpg")' }}>
-      {/* Monnify overlay for depth */}
-      <div className="absolute inset-0 bg-[#063A4F]/40 backdrop-blur-sm" />
-
-      {/* Glowing orbs */}
-      <div className="absolute top-10 right-10 w-80 h-80 bg-[#00B8C2]/50 rounded-full blur-3xl opacity-60 animate-pulse" />
-      <div className="absolute bottom-10 left-10 w-80 h-80 bg-[#FDB515]/50 rounded-full blur-3xl opacity-60 animate-pulse [animation-delay:1s]" />
-
+    <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6 }}
-        className="relative z-10 w-full max-w-lg mx-4"
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="w-full max-w-md"
       >
-        <div className="bg-[#F9FBFD]/10 backdrop-blur-2xl rounded-3xl border border-[#063A4F]/20 shadow-2xl p-12">
-          {/* Title – Gradient like Monnify */}
-          <div className="text-center mb-12">
-            <motion.h1 
-              className="text-7xl font-bold font-rubik bg-gradient-to-r from-[#00B8C2] to-[#FDB515] bg-clip-text text-transparent drop-shadow-2xl"
-              animate={{ y: [0, -15, 0] }}
-              transition={{ duration: 5, repeat: Infinity }}
-            >
-              SwiftPay
-            </motion.h1>
-            <p className="text-[#063A4F]/70 text-xl mt-4 font-oxygen">Come Join The SwiftPay Community And Get Your Dues Paid.</p>
-          </div>
+        <div className="text-center mb-10">
+          <motion.h1
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="text-6xl md:text-7xl font-black bg-gradient-to-r from-cyan-400 to-yellow-400 bg-clip-text text-transparent mb-4"
+          >
+            SwiftPay
+          </motion.h1>
+          <p className="text-lg opacity-80">Join the fastest student dues platform</p>
+        </div>
 
-          <form onSubmit={handleRegister} className="space-y-7">
-            <input
-              type="text"
-              required
+        <div className={`rounded-3xl p-8 md:p-10 shadow-2xl backdrop-blur-xl border
+          dark:bg-gray-900/60 dark:border-cyan-500/20 
+          bg-white/70 border-purple-200/40`}>
+          
+          <form onSubmit={handleRegister} className="space-y-6">
+            <Input
+              placeholder="Full Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Full Name"
-              className="w-full px-6 py-5 text-lg bg-[#124458] border border-[#063A4F]/30 rounded-xl text-[#F9FBFD] placeholder-[#F9FBFD]/50 focus:outline-none focus:border-[#FDB515] focus:ring-4 focus:ring-[#FDB515]/30 transition-all font-oxygen"
             />
-            <input
+            <Input
+              placeholder="Email"
               type="email"
-              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              className="w-full px-6 py-5 text-lg bg-[#124458] border border-[#063A4F]/30 rounded-xl text-[#F9FBFD] placeholder-[#F9FBFD]/50 focus:outline-none focus:border-[#FDB515] focus:ring-4 focus:ring-[#FDB515]/30 transition-all font-oxygen"
             />
-            <input
+            <Input
+              placeholder="Password"
               type="password"
-              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Create Password"
-              className="w-full px-6 py-5 text-lg bg-[#124458] border border-[#063A4F]/30 rounded-xl text-[#F9FBFD] placeholder-[#F9FBFD]/50 focus:outline-none focus:border-[#FDB515] focus:ring-4 focus:ring-[#FDB515]/30 transition-all font-oxygen"
             />
 
-            {/* KILLER BUTTON – Monnify gradient with hover shadow */}
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="submit"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               disabled={loading}
-              className="w-full py-6 rounded-xl font-bold text-2xl text-[#F9FBFD] bg-gradient-to-r from-[#F0AA22] to-[#F05822] shadow-md hover:shadow-lg transition-shadow duration-300 font-rubik"
+              className="w-full py-5 rounded-2xl bg-gradient-to-r from-yellow-500 to-amber-500 text-black font-bold text-xl shadow-xl hover:shadow-2xl transition-all disabled:opacity-60"
             >
-              {loading ? "Creating..." : "JOIN SWIFTPAY"}
+              {loading ? 'Creating...' : 'CREATE ACCOUNT'}
             </motion.button>
           </form>
 
-          <p className="text-center mt-10 text-[#063A4F]/70 font-oxygen">
-            Already a User?{" "}
-            <Link to="/" className="font-bold text-[#00B8C2] hover:text-[#FDB515] transition">
-              Login →
+          <p className="text-center mt-8 opacity-80">
+            Already have an account?{' '}
+            <Link to="/login" className="font-bold text-cyan-400 hover:text-cyan-300 transition">
+              Login here
             </Link>
           </p>
         </div>

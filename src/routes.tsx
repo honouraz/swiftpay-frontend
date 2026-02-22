@@ -16,6 +16,9 @@ import SubAdminDashboard from "./pages/SubAdminDashboard";
 import SubAdminLogin from "./pages/SubAdminLogin";
 import VerifyPayment from "./pages/VerifyPayment";
 import ForgotPassword from "./pages/ForgotPassword";
+import Splash from "./pages/Splash";
+import { ThemeProvider } from "./context/ThemeContext";
+
 let AuthProvider: any = ({ children }: any) => children;
 try {
   AuthProvider = require("./context/AuthContext").AuthProvider;
@@ -27,8 +30,11 @@ export default function AppRoutes() {
   return (
     <AuthProvider>
       <BrowserRouter>
+      <ThemeProvider>
         <Routes>
-          <Route path="/" element={<Layout><Login /></Layout>} />
+
+          <Route path="/login" element={<Layout><Login /></Layout>} />
+          <Route path="/" element={<Layout><Splash /></Layout>} />
           <Route path="/verify/:reference" element={<VerifyPayment />} />
           <Route path="/register" element={<Layout><Register /></Layout>} />
           <Route path="/subadmin-dashboard" element={<SubAdminDashboard />} />
@@ -53,6 +59,7 @@ export default function AppRoutes() {
     </Layout>
   }
 />        </Routes>
+</ThemeProvider>
       </BrowserRouter>
     </AuthProvider>
   );

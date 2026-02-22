@@ -21,6 +21,7 @@ interface Payment {
   platformCommission?: number;
   extraCharge?: number;
   dueType?: string;
+  reference: string; // <-- Added reference property
   metadata?: {
     payerName?: string;
     level?: string;
@@ -121,25 +122,36 @@ useEffect(() => {
   });
 }, []);
 
-const handleDownloadReceiptById = async (paymentId: string) => {
-  try {
-    const res = await API.get(`/payments/${paymentId}/receipt`, {
+
+const [downloadingRef, setDownloadingRef] = useState<string | null>(null);
+
+const handleDownloadReceiptById = async (reference: string) => {
+  if (downloadingRef) return; // prevent spam
+  setDownloadingRef(reference);
+    try {
+    const res = await API.get(`/receipt-by-ref/${reference}`, {
       responseType: "blob",
     });
 
     const url = window.URL.createObjectURL(new Blob([res.data]));
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `receipt-${paymentId}.pdf`);
+    link.setAttribute("download", `receipt-${reference}.pdf`);
     document.body.appendChild(link);
     link.click();
     link.remove();
-
-  } catch (err) {
-    toast.error("Failed to download receipt");
+window.URL.revokeObjectURL(url);
+  } catch (err){
+    console.error("Receipt download error:", err);
+    if (typeof err === "object" && err !== null && "response" in err && typeof (err as any).response === "object") {
+      toast.error((err as any).response?.status === 404 
+        ? "Receipt not found for this payment" 
+        : "Failed to download receipt");
+    } else {
+      toast.error("Failed to download receipt");
+    }
   }
 };
-
 
   const [showSubAdminModal, setShowSubAdminModal] = useState(false);
   const [subAdminForm, setSubAdminForm] = useState({ name: "", email: "", password: "", association: "" });
@@ -580,12 +592,19 @@ const handleManualPayout = async (e: React.FormEvent) => {
                       <td className="p-4">{p.metadata?.payerName || "Anonymous"}</td>
                       <td className="p-4">{p.metadata?.matricNumber || "-"}</td>
                       <td className="p-5">
-  <button
-    onClick={() => handleDownloadReceiptById(p._id)}
-    className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
-  >
-    Download
-  </button>
+ <button
+  onClick={() => handleDownloadReceiptById(p.reference)}
+  disabled={p.status !== "success" || downloadingRef === p.reference}
+  className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${
+    downloadingRef === p.reference ? "bg-gray-500 cursor-wait" : "bg-[#00B8C2] hover:bg-[#009CA0]"
+  } text-white`}
+>
+  {downloadingRef === p.reference ? (
+    <>⏳ Downloading...</>
+  ) : (
+    <>📄 Receipt</>
+  )}
+</button>
 </td>
 
                       <td className="p-4">{p.userEmail}</td>

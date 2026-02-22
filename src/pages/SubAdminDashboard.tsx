@@ -30,6 +30,7 @@ const SubAdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const storedUser = localStorage.getItem("swiftpay_user");
   const user = storedUser ? JSON.parse(storedUser) : null;
+const [showOnlyUnconfirmed, setShowOnlyUnconfirmed] = useState(false);
 
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +66,9 @@ const fetchPayments = useCallback(async () => {
   }
 }
 , []);
+
+
+
 
 const confirmAndRefresh = useCallback(
   async (idOrRef: string, mode: "id" | "ref") => {
@@ -171,9 +175,9 @@ useEffect(() => {
       selectedLevels.length === 0 ||
       selectedLevels.includes(p.metadata?.level || "");
 
-    return matchesSearch && matchesLevel;
+    return matchesSearch && matchesLevel && (showOnlyUnconfirmed ? !p.confirmed : true);
   });
-}, [payments, search, selectedLevels]);
+}, [payments, search, selectedLevels, showOnlyUnconfirmed]);
 
 
 const totalStudents = filteredPayments.length;
@@ -290,6 +294,15 @@ const totalStudents = filteredPayments.length;
   <div id="qr-reader" className="w-full max-w-md mx-auto my-8" />
 )}
 
+<div className="flex items-center gap-3 mb-4">
+  <input
+    type="checkbox"
+    checked={showOnlyUnconfirmed}
+    onChange={() => setShowOnlyUnconfirmed(!showOnlyUnconfirmed)}
+    className="w-5 h-5"
+  />
+  <label className="text-[#F9FBFD]">Show only unconfirmed payments</label>
+</div>
 
       {/* Payments Table */}
       <motion.div
@@ -323,20 +336,14 @@ const totalStudents = filteredPayments.length;
                 </tr>
               ) : (
 filteredPayments.map((p) => {
-  const isConfirmed = p.confirmed === true;
 
   return (
                   <motion.tr
   key={p._id}
-  initial={{ opacity: 0, y: 10 }}
-  animate={
-    isConfirmed
-      ? { scale: [1, 1.02, 1], backgroundColor: "rgba(34,197,94,0.08)" }
-      : { opacity: 1, y: 0 }
-  }
-  transition={{ duration: 0.6 }}
-  className={`border-t border-[#063A4F]/30 transition-colors ${
-    isConfirmed ? "bg-green-500/10" : "hover:bg-[#063A4F]/40"
+  className={`border-t border-[#063A4F]/30 transition-all duration-300 ${
+    p.confirmed 
+      ? "bg-green-900/30 hover:bg-green-900/50 border-green-500/50" 
+      : "hover:bg-[#063A4F]/40"
   }`}
 >
 
@@ -348,28 +355,23 @@ filteredPayments.map((p) => {
                     <td className="p-5">{p.metadata?.level || "-"}</td>
                     <td className="p-5">
   {p.confirmed ? (
-  <div className="flex items-center gap-2 text-green-400 font-bold">
-    <span className="w-3 h-3 rounded-full bg-green-400" />
-    ✔ Confirmed
-  </div>
-) : (
- <button
-  onClick={() => confirmAndRefresh(p._id, "id")}
-  disabled={p.confirmed}
-  className={`px-4 py-2 font-bold rounded-lg transition
-    ${
-      p.confirmed
-        ? "bg-gray-400 cursor-not-allowed text-gray-700"
-        : "bg-yellow-400 hover:bg-yellow-500 text-black"
-    }
-  `}
->
-  ✔ Confirm Payment
-</button>
-
-)}
-
-
+    <div className="flex items-center gap-3 text-green-400 font-bold">
+      <span className="w-4 h-4 rounded-full bg-green-500 animate-pulse" />
+      Confirmed ✓
+    </div>
+  ) : (
+    <button
+      onClick={() => confirmAndRefresh(p._id, "id")}
+      disabled={p.confirmed}
+      className={`px-5 py-2.5 font-bold rounded-lg transition shadow-md ${
+        p.confirmed 
+          ? "bg-gray-600 cursor-not-allowed" 
+          : "bg-yellow-500 hover:bg-yellow-600 text-black"
+      }`}
+    >
+      Confirm Payment
+    </button>
+  )}
 </td>
 
                     <td className="p-5 font-bold text-[#00B8C2]">₦{(p.baseAmount || 0).toLocaleString()}</td>
