@@ -98,7 +98,7 @@ a:hover {
 input, select, textarea {
   width: 100%;
   padding: 16px 24px; /* More padding for fine feel */
-  background: #1e220a; /* Slightly lighter navy for depth */
+  background: #2b52b4; /* Slightly lighter navy for depth */
   border: 1px solid rgba(116, 14, 240, 0.2);
   border-radius: 12px;
   color: #dae3ec;

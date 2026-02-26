@@ -29,7 +29,7 @@ const Splash = () => {
           🌟 Swiftpay
         </h1>
         <p className="text-2xl md:text-4xl text-[#F9FBFD]/80 mt-6 font-oxygen tracking-wide">
-          powered by HONOURAZ '25️⃣IVE
+          powered by SWIFTTECH'26
         </p>
         <p className="text-xl text-[#F9FBFD]/60 mt-4">Pay Dues. Fast. Secure. Student-First.</p>
       </motion.div>

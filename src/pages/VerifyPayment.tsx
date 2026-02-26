@@ -173,7 +173,7 @@ const VerifyPayment: React.FC = () => {
         <div className="text-center">
           <p className="text-lg font-bold text-[#FDB515]">Thank you for paying with SwiftPay!</p>
           <p className="text-sm text-[#F9FBFD]/70 mt-2">
-            Powered by Honouraz Investments & Technologies
+            Powered by SwiftTech Investments & Technologies
           </p>
         </div>
       </motion.div>
