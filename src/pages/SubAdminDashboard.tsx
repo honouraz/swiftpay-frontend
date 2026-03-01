@@ -498,7 +498,7 @@ filteredPayments.map((p) => {
   )}
 </motion.div>
 <div className="flex gap-4">
-  {["100", "200", "300", "400"].map(level => (
+  {["100", "200", "300", "400", "DE"].map(level => (
     <label key={level} className="flex items-center gap-2">
       <input
         type="checkbox"

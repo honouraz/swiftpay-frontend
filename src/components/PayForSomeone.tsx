@@ -106,7 +106,7 @@ baseAmount: baseAmount
           className="px-6 py-4 bg-[#124458] rounded-xl text-white"
           disabled={!form.dueId}
         >
-          {[100, 200, 300, 400, 500].map(lvl => (
+          {["100", "200", "300", "400", "500", "DE"].map(lvl => (
             <option key={lvl} value={lvl.toString()}>
               {lvl} Level — ₦{(safePrices[lvl.toString()] ?? 0).toLocaleString()}
             </option>
