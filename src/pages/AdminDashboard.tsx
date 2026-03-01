@@ -565,7 +565,7 @@ const handleManualPayout = async (e: React.FormEvent) => {
                 Status: p.status,
                 PaidAt: p.paidAt,
               }))} filename="swiftpay_payments.csv">
-                <button className="px-6 py-3 bg-gradient-to-r from-[#F0AA22] to-[#F05822] hover:from-[#F05822] to-[#FDB515] rounded-xl font-rubik font-bold text-[#F9FBFD]">Export CSV</button>
+                <button className="px-6 py-3 bg-gradient-to-r from-[#F0AA22] hover:from-[#F05822] to-[hsl(41,52%,13%)] rounded-xl font-rubik font-bold text-[#F9FBFD]">Export CSV</button>
               </CSVLink>
             </div>
             <div className="overflow-x-auto">
