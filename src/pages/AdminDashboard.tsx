@@ -635,11 +635,11 @@ const handleManualPayout = async (e: React.FormEvent) => {
               <div key={due._id} className="bg-[#124458] rounded-2xl p-8 border border-[#063A4F]/20 shadow-md relative">
                 <h3 className="text-2xl font-rubik font-bold mb-4 text-[#F9FBFD]">{due.name}</h3>
                 <p className="text-[#F9FBFD]/70 mb-6 font-oxygen">{due.description}</p>
-                <div className="grid grid-cols-5 gap-4 mb-6">
+                <className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-6"
                   {(['100', '200', '300', '400', '500', 'DE'] as const).map(lvl => (
                     <div key={lvl} className="bg-[#063A4F] rounded-lg p-4 text-center font-oxygen">
                       <p className="text-[#FDB515] font-bold">{lvl}</p>
-                      <p className="text-[#F9FBFD]/70">₦{due.prices[lvl].toLocaleString()}</p>
+                      <p className="text-[#F9FBFD]/70">₦{(due.prices?.[lvl] ?? 0).toLocaleString()}</p>
                     </div>
                   ))}
                 </div>
