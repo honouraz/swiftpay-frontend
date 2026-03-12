@@ -258,7 +258,8 @@ const totalStudents = filteredPayments.length;
         />
 
         <CSVLink
-          data={filteredPayments.map(p => ({
+          data={filteredPayments.map((p, index) => ({
+            No: index + 1,
             Name: p.metadata?.payerName || "N/A",
             Email: p.userEmail,
             Due: p.dueName,
@@ -315,6 +316,7 @@ const totalStudents = filteredPayments.length;
           <table className="w-full text-left font-oxygen">
             <thead className="bg-gradient-to-r from-[#F0AA22]/30 to-[#F05822]/30">
               <tr>
+                <th className="p-5 font-bold text-[#FDB515]">No.</th>
                 <th className="p-5 font-bold text-[#FDB515]">Name</th>
                 <th className="p-5 font-bold text-[#FDB515]">Email</th>
                 <th className="p-5 font-bold text-[#FDB515]">Matric</th>
@@ -335,7 +337,7 @@ const totalStudents = filteredPayments.length;
                   </td>
                 </tr>
               ) : (
-filteredPayments.map((p) => {
+filteredPayments.map((p, index) => {
 
   return (
                   <motion.tr
@@ -347,7 +349,8 @@ filteredPayments.map((p) => {
   }`}
 >
 
-                    <td className="p-5">{p.metadata?.payerName || "N/A"}</td>
+<td className="p-5 font-semibold text-[#FDB515] bg-[#063A4F]/40 rounded-l-lg"> {index + 1} </td>
+ <td className="p-5">{p.metadata?.payerName || "N/A"}</td>
                     <td className="p-5">{p.userEmail || "N/A"}</td>
                     <td className="p-5">{p.metadata?.matricNumber || "-"}</td>
                     <td className="p-5">{p.metadata?.department || "-"}</td>
