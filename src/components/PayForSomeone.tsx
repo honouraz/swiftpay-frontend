@@ -65,7 +65,7 @@ const PayForSomeone: React.FC = () => {
 baseAmount: baseAmount    
 });
 
-      window.location.href = res.data.paymentUrl || res.data.authorization_url; // Flutterwave uses paymentUrl
+window.location.href = `/checkout?ref=${res.data.reference}`;
   } catch (err: any) {
     console.error(err.response?.data || err);
     alert("Payment failed: " + (err.response?.data?.message || "Try again"));

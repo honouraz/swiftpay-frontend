@@ -8,6 +8,7 @@ const PaymentSuccess: React.FC = () => {
 
   const params = new URLSearchParams(window.location.search);
     const reference = 
+    params.get("ref") ||
       params.get("reference") ||          // Paystack
       params.get("trxref") ||             // Flutterwave old
       params.get("tx_ref");               // Flutterwave current

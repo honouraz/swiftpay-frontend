@@ -18,6 +18,7 @@ import VerifyPayment from "./pages/VerifyPayment";
 import ForgotPassword from "./pages/ForgotPassword";
 import Splash from "./pages/Splash";
 import { ThemeProvider } from "./context/ThemeContext";
+import Checkout from "./pages/Checkout";
 
 let AuthProvider: any = ({ children }: any) => children;
 try {
@@ -42,7 +43,7 @@ export default function AppRoutes() {
           <Route path="/dashboard" element={<Layout><ProtectedRoute><Dashboard /></ProtectedRoute></Layout>} />
           <Route path="/payment" element={<Layout><ProtectedRoute><Payment /></ProtectedRoute></Layout>} />
           <Route path="/profile" element={<Layout><ProtectedRoute><Profile /></ProtectedRoute></Layout>} />
-          
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/my-transactions" element={<Layout><ProtectedRoute><MyTransactions /></ProtectedRoute></Layout>} />
           {/* SUCCESS PAGE AFTER PAYSTACK */}
