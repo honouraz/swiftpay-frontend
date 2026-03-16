@@ -428,3 +428,57 @@ p{
   margin:auto;
   max-width:420px;
 }
+
+/* ===== PAGE LAYOUT ===== */
+
+.page-wrapper{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:40px 20px;
+  background:#f6f7fb;
+}
+
+/* Main content width */
+
+.main-container{
+  width:100%;
+  max-width:1200px;
+}
+
+/* Grid layout */
+
+.dashboard-layout{
+  display:grid;
+  grid-template-columns:1fr 420px;
+  gap:40px;
+}
+
+/* Form card */
+
+.form-card{
+  background:white;
+  padding:30px;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* Right side info panel */
+
+.info-panel{
+  background:white;
+  padding:30px;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* Mobile fix */
+
+@media(max-width:900px){
+
+.dashboard-layout{
+  grid-template-columns:1fr;
+}
+
+}
