@@ -7,7 +7,13 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  return (
+  return ( 
+    <div className="app-bg">
+
+  <div className="container">
+
+    <div className="glass-card">
+
     <div className="min-h-screen bg-gray-50">
 
       <div className="max-w-6xl mx-auto px-6 mt-12">
@@ -52,6 +58,11 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
+        </div>
+
+  </div>
+
+</div>
   );
 };
 
