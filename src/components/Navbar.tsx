@@ -9,14 +9,14 @@ const Navbar: React.FC = () => {
   return (
     <nav className="bg-[#063A4F]/90 text-[#F9FBFD] p-4 flex justify-between font-rubik">
       <div className="font-bold text-xl">SWIFTPAY</div>
-      <div className="space-x-4">
-        <Link to="/dashboard" className="hover:text-[#FDB515] transition">Dashboard</Link>
-        <Link to="/profile" className="hover:text-[#FDB515] transition">Profile</Link>
+      <ul><div className="space-x-4">
+        <p><Link to="/dashoard" className="hover:text-[#FDB515] transition">Dashboard - -</Link></p>
+        <Link to="/profile" className="hover:text-[#FDB515] transition">Profile - - </Link>
         <Link to="/payment" className="hover:text-[#FDB515] transition">Pay</Link>
         {isAdmin && (
           <Link to="/admin" className="text-[#FDB515] font-semibold hover:text-[#F05822] transition">Admin Panel</Link>
         )}
-      </div>
+      </div></ul>
     </nav>
   );
 };

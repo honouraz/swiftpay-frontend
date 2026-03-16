@@ -29,10 +29,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
           {/* Nav – Desktop: space-x-8 for spacing */}
           <nav className="hidden md:flex space-x-8 lg:space-x-10 font-rubik text-[#F9FBFD] font-medium items-center text-lg">
-            <Link to="/dashboard" className="hover:text-[#FDB515] transition">Dashboard</Link>
-            <Link to="/profile" className="hover:text-[#FDB515] transition">Profile</Link>
-            <Link to="/payment" className="hover:text-[#FDB515] transition">Pay</Link>
-            {isAdmin && <Link to="/admin" className="text-[#FDB515] font-bold hover:text-[#F05822] transition">Admin Panel</Link>}
+            <Link to="/dashboard" className="hover:text-[#FDB515] transition">Dashboard  </Link>
+            <Link to="/profile" className="hover:text-[#FDB515] transition">  Profile  </Link>
+            <Link to="/payment" className="hover:text-[#FDB515] transition">  Pay   </Link>
+            {isAdmin && <Link to="/admin" className="text-[#FDB515] font-bold hover:text-[#F05822] transition">   Admin Panel</Link>}
           </nav>
 
           {/* Actions – Desktop: fine buttons with gradients/shadows */}

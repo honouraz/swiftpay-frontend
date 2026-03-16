@@ -67,7 +67,7 @@ export default function Checkout() {
   return (
     <div className="checkout-container">
 
-      <img src="/swiftpay-logo.png" className="logo" />
+      <img src="/swiftpay-logo.png" className="logo" alt="SWIFTPAY LOGO" />
 
       <h2>SwiftPay Secure Checkout</h2>
 
