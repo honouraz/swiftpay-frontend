@@ -75,7 +75,9 @@ window.location.href = `/checkout?ref=${res.data.reference}`;
   };
 
   return (
-    <form onSubmit={handlePay} className="space-y-6 font-oxygen">
+    <div className="card p-8">
+  <form onSubmit={handlePay} className="space-y-5">
+    {/* inputs use global style automatically if className="w-full" */}
       <input type="text" placeholder="Full Name" required value={form.fullName} onChange={e => setForm({ ...form, fullName: e.target.value })} className="w-full px-6 py-4 bg-[#124458] rounded-xl text-white" />
       <input type="text" placeholder="Matric Number" required value={form.matricNumber} onChange={e => setForm({ ...form, matricNumber: e.target.value })} className="w-full px-6 py-4 bg-[#124458] rounded-xl text-white" />
       <select required value={form.department} onChange={e => setForm({ ...form, department: e.target.value })} className="w-full px-6 py-4 bg-[#124458] rounded-xl text-white">
@@ -117,8 +119,9 @@ window.location.href = `/checkout?ref=${res.data.reference}`;
         </select>
       </div>
 
-      <div className="text-center py-8 bg-[#063A4F]/30 rounded-2xl">
-        <p className="text-4xl font-bold text-[#FDB515] mb-2">
+          {/* Total section in nice card */}
+    <div className="glass-card mt-8 p-6 text-center">
+      <p className="text-4xl font-bold text-indigo-700">
           ₦{baseAmount.toLocaleString()}
         </p>
         <p className="text-sm text-gray-300 mb-2">
