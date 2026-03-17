@@ -10,50 +10,45 @@ const Dashboard = () => {
 
   return ( 
 
-    <div className="min-h-screen bg-gray-50">
+    // Dashboard.tsx
+<div className="page-wrapper">
+  <div className="main-container">
+    <header className="mb-10">
+      <h1 className="text-5xl font-bold text-slate-900">
+        Welcome Back, <span className="text-indigo-600">{user?.name?.split(" ")[0]}</span>
+      </h1>
+      <p className="mt-2 text-xl text-slate-600 font-medium">
+        PAY YOUR DUES SWIFTLY WITH SWIFTPAY
+      </p>
+    </header>
 
-      <div className="max-w-6xl mx-auto px-6 mt-12">
-        <header className="mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
-          <div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-black uppercase">
-              Welcome Back, <span className="text-[#00B8C2]">{user?.name?.split(" ")[0]}</span>
-            </h1>
-            <p className="text-xl font-bold text-gray-500 mt-2">PAY YOUR DUES SWIFTLY WITH SWIFTPAY</p>
-          </div>
-        </header>
+    <div className="dashboard-grid">
+      {/* PayForSomeone goes here – wrap it in card */}
+      <div className="card lg:col-span-2">
+        <PayForSomeone />
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Main Payment Section */}
-          <div className="lg:col-span-2">
-            <PayForSomeone />
-          </div>
-<button 
-            onClick={() => navigate("/my-transactions")}
-            className="btn-brutal bg-[#00B8C2] text-white flex items-center gap-3"
-          >
-            <History size={25} /> View Transaction History And Download Receipts
-          </button>
-
-          {/* Quick Stats Sidebar */}
-          <div className="space-y-8">
-            <div className="card-brutal bg-[#FF6B35] text-white">
-              <Zap size={40} className="mb-4" />
-              <h3 className="text-2xl font-black uppercase">Fast Verification</h3>
-              <p className="font-bold opacity-90 mt-2">All transanctions are synced and verified instantly and receipts generated SWIFTLY</p>
-            </div>
-
-            <div className="card-brutal bg-white">
-              <ShieldCheck size={40} className="mb-4 text-[#00B8C2]" />
-              <h3 className="text-2xl font-black uppercase text-black">Security</h3>
-              <p className="font-bold text-gray-500 mt-2">Secured by Swiftpay End-to-End Encryption and Flutterwave.</p>
-            <button onClick={logout} className="text-xs font-bold hover:text-[#FF6B35] flex items-center gap-2">
-          <LogOut size={14} /> LOGOUT
-        </button>
-            </div>
-          </div>
+      {/* Sidebar stats / actions */}
+      <div className="space-y-6">
+        <div className="stat-card">
+          <Zap className="text-emerald-600" size={32} />
+          <div className="stat-number text-emerald-600">Instant</div>
+          <div className="stat-label">Verification & Receipts</div>
         </div>
+
+        <div className="stat-card">
+          <ShieldCheck className="text-indigo-600" size={32} />
+          <div className="stat-number">Secure</div>
+          <div className="stat-label">End-to-End Encryption</div>
+        </div>
+
+        <button onClick={logout} className="button danger w-full flex items-center justify-center gap-2">
+          <LogOut size={18} /> Logout
+        </button>
       </div>
     </div>
+  </div>
+</div>
       
   );
 };
