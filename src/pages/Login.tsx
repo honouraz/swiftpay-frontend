@@ -28,86 +28,75 @@ const Login = () => {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-cover bg-center" style={{ backgroundImage: 'url("../assets/bg.jpg")' }}>
-      {/* Monnify-like subtle overlay for contrast */}
-      <div className="absolute inset-0 bg-[#063A4F]/40 backdrop-blur-sm" />
+    // Replace most of the outer div with:
+<div className="page-wrapper bg-gradient-to-br from-indigo-50 via-white to-emerald-50">
+  <div className="center-card">
+    <div className="glass-card max-w-md w-full">
+      <div className="text-center mb-10">
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-600 to-emerald-600 bg-clip-text text-transparent">
+          SwiftPay
+        </h1>
+        <p className="mt-3 text-lg text-slate-600 font-medium">
+          Pay Smart. Dues. Zero Stress.
+        </p>
+      </div>
 
-      {/* Glowing orbs with Monnify colors */}
-      <div className="absolute top-20 left-20 w-96 h-96 bg-[#00B8C2]/40 rounded-full blur-3xl opacity-60 animate-pulse" />
-      <div className="absolute bottom-20 right-20 w-96 h-96 bg-[#FDB515]/40 rounded-full blur-3xl opacity-60 animate-pulse [animation-delay:1s]" />
+      <form onSubmit={handleLogin} className="space-y-6">
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          className="w-full"   // ← your global input style kicks in
+          required
+        />
 
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
-        className="relative z-10 w-full max-w-lg mx-4"
-      >
-        <div className="bg-[#F9FBFD]/10 backdrop-blur-2xl rounded-3xl border border-[#063A4F]/20 shadow-2xl p-12">
-          {/* Logo + Name – Gradient text like Monnify headings */}
-          <div className="text-center mb-12">
-            <motion.div
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 6, repeat: Infinity }}
-              className="inline-block"
-            >
-              <h1 className="text-7xl font-bold font-rubik bg-gradient-to-r from-[#00B8C2] to-[#FDB515] bg-clip-text text-transparent drop-shadow-2xl">
-                SwiftPay
-              </h1>
-            </motion.div>
-            <p className="text-[#063A4F]/70 text-xl mt-4 font-oxygen tracking-wider">Pay Smart Dues. Zero Stress.</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-7">
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="w-full px-6 py-5 text-lg bg-[#124458] border border-[#063A4F]/30 rounded-xl text-[#F9FBFD] placeholder-[#F9FBFD]/50 focus:outline-none focus:border-[#FDB515] focus:ring-4 focus:ring-[#FDB515]/30 transition-all duration-300 font-oxygen"
-            />
-
-            <input
-type={showPassword ? "text" : "password"}              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password"
-              className="w-full px-6 py-5 text-lg bg-[#124458] border border-[#063A4F]/30 rounded-xl text-[#F9FBFD] placeholder-[#F9FBFD]/50 focus:outline-none focus:border-[#FDB515] focus:ring-4 focus:ring-[#FDB515]/30 transition-all duration-300 font-oxygen"
-            /><button
-  type="button"
-  onClick={() => setShowPassword(prev => !prev)}
->
-  {showPassword ? "Hide" : "Show"}
-</button>
-
-            {/* KILLER BUTTON – Monnify primary gradient with shadow hover */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="submit"
-              disabled={loading}
-              className="w-full py-6 rounded-xl font-bold text-2xl text-[#F9FBFD] bg-gradient-to-r from-[#F0AA22] to-[#F05822] shadow-md hover:shadow-lg transition-shadow duration-300 relative overflow-hidden group font-rubik"
-            >
-              <span className="relative z-10">{loading ? "Entering..." : "LOGIN NOW"}</span>
-              <div className="absolute inset-0 bg-[#F9FBFD]/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-            </motion.button>
-          </form>
-
-          <p className="text-center mt-10 text-[#063A4F]/70 font-oxygen">
-            NEW USER?{" "}
-            <Link to="/register" className="font-bold text-[#00B8C2] hover:text-[#FDB515] transition">
-              CREATE A SWIFTPAY ACCOUNT →
-            </Link>
-          </p>
-          <p className="text-center mt-10 text-[#063A4F]/70 font-oxygen">
-            ASSOCIATION ADMIN?{" "}
-            <Link to="/subadmin-login" className="font-bold text-[#00B8C6] hover:text-[#FDB780] transition">
-              LOGIN AS SUBADMIN →
-            </Link>
-          </p>
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            className="w-full"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-indigo-600"
+          >
+            {showPassword ? "Hide" : "Show"}
+          </button>
         </div>
-      </motion.div>
+
+        <motion.button
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          type="submit"
+          disabled={loading}
+          className="w-full button"   // ← uses your global button gradient
+        >
+          {loading ? "Entering..." : "LOGIN NOW"}
+        </motion.button>
+      </form>
+
+      <div className="mt-8 text-center text-sm text-slate-600 space-y-2">
+        <p>
+          NEW USER?{" "}
+          <Link to="/register" className="text-indigo-600 font-semibold hover:underline">
+            CREATE A SWIFTPAY ACCOUNT →
+          </Link>
+        </p>
+        <p>
+          ASSOCIATION ADMIN?{" "}
+          <Link to="/subadmin-login" className="text-indigo-600 font-semibold hover:underline">
+            LOGIN AS SUBADMIN →
+          </Link>
+        </p>
+      </div>
     </div>
+  </div>
+</div>
   );
 };
 
