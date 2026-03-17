@@ -3,16 +3,12 @@ import PayForSomeone from "../components/PayForSomeone";
 import { useNavigate } from "react-router-dom";
 import { LogOut, History, ShieldCheck, Zap } from "lucide-react";
 
+
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   return ( 
-    <div className="app-bg">
-
-  <div className="container">
-
-    <div className="glass-card">
 
     <div className="min-h-screen bg-gray-50">
 
@@ -58,11 +54,7 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
-        </div>
-
-  </div>
-
-</div>
+      
   );
 };
 
