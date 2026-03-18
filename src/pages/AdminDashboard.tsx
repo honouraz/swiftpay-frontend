@@ -424,6 +424,13 @@ const handleManualPayout = async (e: React.FormEvent) => {
 
   return (
     <ProtectedRoute adminOnly>
+      <div className="dashboard-layout">
+
+  <div className="topbar">
+    <h3>Admin Panel</h3>
+    </div>
+
+    <div className="main-content">
       <div className="min-h-screen p-8 text-[#F9FBFD]">
         {/* HEADER */}
         <motion.h1 initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
@@ -1023,6 +1030,9 @@ const handleManualPayout = async (e: React.FormEvent) => {
         )}
 
       </div>
+       </div>
+  </div>
+
     </ProtectedRoute>
   );
 };

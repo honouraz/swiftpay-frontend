@@ -318,10 +318,8 @@ const totalStudents = filteredPayments.length;
               <tr>
                 <th className="p-5 font-bold text-[#FDB515]">No.</th>
                 <th className="p-5 font-bold text-[#FDB515]">Name</th>
-                <th className="p-5 font-bold text-[#FDB515]">Email</th>
                 <th className="p-5 font-bold text-[#FDB515]">Matric</th>
                 <th className="p-5 font-bold text-[#FDB515]">Department</th>
-                <th className="p-5 font-bold text-[#FDB515]">Due</th>
                 <th className="p-5 font-bold text-[#FDB515]">Level</th>
                 <th className="p-5 font-bold text-[#FDB515]">Confirmed</th>
                 <th className="p-5 font-bold text-[#FDB515]">Amount</th>
@@ -351,10 +349,8 @@ filteredPayments.map((p, index) => {
 
 <td className="p-5 font-semibold text-[#FDB515] bg-[#063A4F]/40 rounded-l-lg"> {index + 1} </td>
  <td className="p-5">{p.metadata?.payerName || "N/A"}</td>
-                    <td className="p-5">{p.userEmail || "N/A"}</td>
                     <td className="p-5">{p.metadata?.matricNumber || "-"}</td>
                     <td className="p-5">{p.metadata?.department || "-"}</td>
-                    <td className="p-5 font-medium text-[#FDB515]">{p.dueName}</td>
                     <td className="p-5">{p.metadata?.level || "-"}</td>
                     <td className="p-5">
   {p.confirmed ? (

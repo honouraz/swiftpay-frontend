@@ -1,142 +1,497 @@
-/* global.css – FIXED VISIBILITY: DARKER CARD/INPUT BG (#063A4F FOR CONTRAST), FINE INPUTS (GLOW, PADDING), EXCITING BUTTONS (SCALE, GLOW HOVER, ROTATE); LINKS TO CYAN (#00B8C2) */
-@import url('https://fonts.googleapis.com/css?family=Oxygen|Rubik:400,500,700&display=swap');
+/* ===============================
+   SwiftPay Global UI System
+================================ */
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* RESET */
 
-body {
-  font-family: 'Oxygen', sans-serif; /* Monnify body */
-  background: url("../assets/bg.jpg") no-repeat center center fixed;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  margin: 0;
-  padding: 0;
-  color: lch(98.1% 0.88 343.17 / 0.889); /* Light text */
+*,
+*::before,
+*::after{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
-h1, h2, h3, h4 {
-  font-family: 'Rubik', sans-serif; /* Monnify headings */
+html,body{
+  height:100%;
 }
 
-a {
-  color: #11d358; /* Cyan for links */
-  text-decoration: none;
-  transition: color 0.3s;
-}
-a:hover {
-  color: #6a15fd; /* Yellow on hover */
-}
-
-.btn {
-  padding: 12px 24px;
-  background: linear-gradient(170.04deg, #F0AA22 -8.91%, #F05822 99.52%);
-  color: #F9FBFD;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(241, 140, 65, 0.26);
-  font-weight: 500;
-  position: relative; /* For pseudo-elements */
-  overflow: hidden; /* For animations */
-}
-.btn:hover {
-  background: linear-gradient(to left, #F05822, #FF6219);
-  transform: translateY(-3px) scale(1.05) rotate(2deg); /* Lift, grow, slight rotate for fun */
-  box-shadow: 0 8px 20px rgba(241, 140, 65, 0.4), 0 0 15px rgba(253, 181, 21, 0.6); /* Glow */
-}
-.btn::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.5s;
-}
-.btn:hover::before {
-  opacity: 1; /* Shine effect on hover */
+body{
+  font-family:"Inter",system-ui,-apple-system,sans-serif;
+  background:#f4f6fb;
+  color:#07d1ec;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
 }
 
-.card {
-  background: #c2dfeb; /* Dark navy for cards – high contrast */
-  padding: 32px;
-  border-radius: 14px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(6, 58, 79, 0.1);
+
+/* ===============================
+   APP BACKGROUND
+================================ */
+
+.app-bg{
+  min-height:100vh;
+
+  background:
+  radial-gradient(circle at 15% 20%, rgba(99,102,241,0.15), transparent 40%),
+  radial-gradient(circle at 85% 80%, rgba(34,197,94,0.12), transparent 40%),
+  #f4f6fb;
+
+  padding:40px 20px;
 }
 
-.layout-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
+
+/* ===============================
+   CONTAINER
+================================ */
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  width:100%;
 }
 
-.layout-card {
-  width: 380px;
-  padding: 35px;
-  border-radius: 20px;
-  background: #f0f2f4; /* Dark navy */
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0px 8px 22px rgba(0, 0, 0, 0.2);
+
+/* ===============================
+   GLASS CARD
+================================ */
+
+.glass-card{
+  background:rgba(204, 9, 9, 0.034);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+
+  border:10px solid rgba(136, 206, 246, 0.5);
+  border-radius:16px;
+
+  padding:20px;
+
+  box-shadow:
+  0 10px 30px rgba(0,0,0,0.06),
+  inset 0 1px 0 rgba(255,255,255,0.4);
+
+  transition:all .25s ease;
 }
 
-/* Forms & Inputs – Finer design: more padding, glow focus, rounded corners */
-input, select, textarea {
-  width: 100%;
-  padding: 16px 24px; /* More padding for fine feel */
-  background: #2b52b4; /* Slightly lighter navy for depth */
-  border: 1px solid rgba(116, 14, 240, 0.2);
-  border-radius: 12px;
-  color: #dae3ec;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.15); /* Subtle inset shadow */
-}
-input:focus, select:focus, textarea:focus {
-  border-color: #f3d593;
-  box-shadow: 0 0 15px rgba(253, 181, 21, 0.5), inset 0 2px 6px rgba(0, 0, 0, 0.15); /* Stronger glow */
-  outline: none;
-}
-input::placeholder, textarea::placeholder {
-  color: #F9FBFD/60;
+.glass-card:hover{
+  transform:translateY(-2px);
+  box-shadow:
+  0 20px 45px rgba(0,0,0,0.08);
 }
 
-/* Responsive – Monnify-like breakpoints */
-@media (max-width: 767px) {
-  .card {
-    padding: 20px;
+
+/* ===============================
+   STANDARD CARD
+================================ */
+
+.card{
+  background:rgb(213, 211, 211);
+  border-radius:14px;
+  padding:24px;
+
+  box-shadow:
+  0 6px 20px rgba(0,0,0,0.05);
+
+  transition:all .2s ease;
+}
+
+.card:hover{
+  transform:translateY(-1px);
+  box-shadow:0 12px 28px rgba(0,0,0,0.08);
+}
+
+
+/* ===============================
+   DASHBOARD GRID
+================================ */
+
+.dashboard-grid{
+  display:grid;
+
+  grid-template-columns:
+  repeat(auto-fit,minmax(220px,1fr));
+
+  gap:20px;
+}
+
+
+/* ===============================
+   STATS CARDS
+================================ */
+
+.stat-card{
+  background:white;
+
+  border-radius:14px;
+
+  padding:20px;
+
+  box-shadow:0 6px 18px rgba(0,0,0,0.05);
+}
+
+.stat-number{
+  font-size:28px;
+  font-weight:700;
+}
+
+.stat-label{
+  font-size:13px;
+  color:#64748b;
+  margin-top:4px;
+}
+
+
+/* ===============================
+   BUTTONS
+================================ */
+
+button{
+  border:none;
+
+  padding:10px 10px;
+
+  border-radius:10px;
+
+  font-size:12px;
+
+  font-weight:900;
+
+  cursor:pointer;
+
+  transition:all .2s ease;
+
+  background:
+  linear-gradient(135deg,#5f60b3,#1c91a3);
+
+  color:white;
+
+  box-shadow:
+  0 4px 14px rgb(220, 220, 224);
+}
+
+button:hover{
+  transform:translateY(-1px);
+  box-shadow:
+  0 8px 20px rgba(79,70,229,0.35);
+}
+
+button:active{
+  transform:scale(.97);
+}
+
+button.secondary{
+  background:#e2e8f0;
+  color:#0f172a;
+}
+
+button.success{
+  background:#22c55e;
+}
+
+button.danger{
+  background:#ef4444;
+}
+
+
+/* ===============================
+   INPUTS
+================================ */
+
+input,
+select,
+textarea{
+
+  width:100%;
+  border:1px solid #d1d5db;
+  background:#f9fafb;
+  
+  padding:15px 19px;
+
+  border-radius:8px;
+
+  border:10px solid #d1d5db;
+
+  font-size:14px;
+
+  background:#fafafa;
+
+  transition:all .20s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+
+  outline:none;
+
+  border-color:#c6c6db;
+
+  background:white;
+
+  box-shadow:
+  0 0 0 3px rgba(99,102,241,0.15);
+}
+
+
+/* ===============================
+   TABLE
+================================ */
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th{
+  text-align:center;
+font-weight: 999;
+  font-size:13px;
+
+  color:#131414;
+
+  padding:10px 15px;
+
+  border-bottom:1px solid #e5e7eb;
+}
+
+td{
+  padding:12px 15px;
+
+  border-bottom:1px solid #f1f5f9;
+color: #867ed7;
+font-weight: 500;
+  font-size:15px;
+}
+
+tr:hover{
+  background:#f8fafc;
+}
+
+
+/* ===============================
+   BADGES
+================================ */
+
+.badge{
+  padding:4px 10px;
+  border-radius:20px;
+
+  font-size:12px;
+
+  font-weight:600;
+}
+
+.badge.success{
+  background:#dcfce7;
+  color:#16a34a;
+}
+
+.badge.pending{
+  background:#fef3c7;
+  color:#d97706;
+}
+
+.badge.failed{
+  background:#fee2e2;
+  color:#dc2626;
+}
+
+
+/* ===============================
+   TYPOGRAPHY
+================================ */
+
+h1{
+  font-size:28px;
+  font-weight:700;
+}
+
+h2{
+  font-size:22px;
+  font-weight:600;
+}
+
+h3{
+  font-size:18px;
+  font-weight:600;
+}
+
+p{
+  color:#475569;
+}
+
+
+/* ===============================
+   FLEX UTILITIES
+================================ */
+
+.flex{
+  display:flex;
+  align-items:center;
+}
+
+.flex-between{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.flex-center{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+
+/* ===============================
+   GRID
+================================ */
+
+.grid{
+  display:grid;
+  gap:20px;
+}
+
+
+/* ===============================
+   SPACING UTILITIES
+================================ */
+
+.mt-2{margin-top:10px}
+.mt-3{margin-top:15px}
+.mt-4{margin-top:20px}
+
+.mb-2{margin-bottom:10px}
+.mb-3{margin-bottom:15px}
+.mb-4{margin-bottom:20px}
+
+
+/* ===============================
+   SKELETON LOADER
+================================ */
+
+.skeleton{
+  height:18px;
+
+  border-radius:6px;
+
+  background:
+  linear-gradient(
+    90deg,
+    #f1f5f9,
+    #e2e8f0,
+    #f1f5f9
+  );
+
+  background-size:200% 100%;
+
+  animation:shimmer 1.4s infinite;
+}
+
+@keyframes shimmer{
+  0%{background-position:-200% 0}
+  100%{background-position:200% 0}
+}
+
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media(max-width:768px){
+
+  .app-bg{
+    padding:20px 12px;
   }
-  .btn {
-    padding: 12px 20px;
-    font-size: 14px;
+
+  .glass-card{
+    padding:20px;
   }
+
+  h1{
+    font-size:22px;
+  }
+
+}
+/* ===== NAVBAR ===== */
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 20px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
 }
 
-@media (min-width: 768px) and (max-width: 991px) {
-  .layout-card {
-    width: 450px;
-  }
+.menu-btn{
+  font-size:22px;
+  cursor:pointer;
+  background:none;
+  border:none;
 }
 
-/* Colors from Monnify */
-:root {
-  --primary: #FDB515; /* Yellow */
-  --secondary: #00B8C2; /* Cyan */
-  --dark: #063A4F; /* Navy */
-  --light: #F9FBFD; /* White-ish */
-  --gradient-primary: linear-gradient(170.04deg, #F0AA22 -8.91%, #F05822 99.52%);
+/* ===== SIDEBAR ===== */
+
+.sidebar{
+  position:fixed;
+  top:0;
+  left:0;
+  height:100%;
+  width:250px;
+  background:#0f172a;
+  color:white;
+  padding:20px;
+  transform:translateX(-100%);
+  transition:0.3s ease;
+  z-index:1000;
+}
+
+.sidebar.active{
+  transform:translateX(0);
+}
+
+.sidebar a{
+  display:block;
+  margin:15px 0;
+  color:white;
+  text-decoration:none;
+}
+
+/* Overlay for mobile */
+
+.overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.4);
+  display:none;
+}
+
+.overlay.active{
+  display:block;
+}
+
+/* ===== DESKTOP MODE ===== */
+
+@media(min-width:900px){
+
+.sidebar{
+  transform:translateX(0);
+}
+
+.overlay{
+  display:none !important;
+}
+
+.main-content{
+  margin-left:250px;
+}
+
+.menu-btn{
+  display:none;
+}
+
 }

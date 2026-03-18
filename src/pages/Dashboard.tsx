@@ -2,21 +2,34 @@ import { useAuth } from "../context/AuthContext";
 import PayForSomeone from "../components/PayForSomeone";
 import { useNavigate } from "react-router-dom";
 import { LogOut, History, ShieldCheck, Zap } from "lucide-react";
+import "../styles/checkout.css";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  return (
-    <div className="min-h-screen bg-gray-50">
+ return (
+<div className="dashboard-layout">
 
-      <div className="max-w-6xl mx-auto px-6 mt-12">
+    {/* TOP BAR */}
+    <div className="topbar">
+      <h3>SwiftPay</h3>
+      <button className="menu-btn">☰</button>
+    </div>
+
+    {/* MAIN CONTENT */}
+    <div className="main-content">
+
+      <div className="max-w-7xl mx-auto px-6 mt-12">
+
         <header className="mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
           <div>
             <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-black uppercase">
               Welcome Back, <span className="text-[#00B8C2]">{user?.name?.split(" ")[0]}</span>
             </h1>
-            <p className="text-xl font-bold text-gray-500 mt-2">PAY YOUR DUES SWIFTLY WITH SWIFTPAY</p>
+            <p className="text-xl font-bold text-gray-500 mt-2">
+              PAY YOUR DUES SWIFTLY WITH SWIFTPAY
+            </p>
           </div>
         </header>
 
@@ -25,6 +38,8 @@ const Dashboard = () => {
           <div className="lg:col-span-2">
             <PayForSomeone />
           </div>
+</div>
+<div className="space-y-8">
 <button 
             onClick={() => navigate("/my-transactions")}
             className="btn-brutal bg-[#00B8C2] text-white flex items-center gap-3"
@@ -51,6 +66,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

@@ -3,10 +3,9 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
-import "../styles/globals.css";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { user, logout, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -26,26 +25,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <Link to="/">
             <h1 className="text-3xl md:text-5xl font-rubik font-bold bg-gradient-to-r from-[#00B8C2] to-[#FDB515] bg-clip-text text-transparent">SwiftPay</h1>
           </Link>
-
-          {/* Nav – Desktop: space-x-8 for spacing */}
-          <nav className="hidden md:flex space-x-8 lg:space-x-10 font-rubik text-[#F9FBFD] font-medium items-center text-lg">
-            <Link to="/dashboard" className="hover:text-[#FDB515] transition">Dashboard  </Link>
-            <Link to="/profile" className="hover:text-[#FDB515] transition">  Profile  </Link>
-            <Link to="/payment" className="hover:text-[#FDB515] transition">  Pay   </Link>
-            {isAdmin && <Link to="/admin" className="text-[#FDB515] font-bold hover:text-[#F05822] transition">   Admin Panel</Link>}
-          </nav>
-
           {/* Actions – Desktop: fine buttons with gradients/shadows */}
-          <div className="hidden md:flex space-x-4 lg:space-x-6">
-            {user ? (
-              <button onClick={logout} className="btn bg-gradient-to-r from-[#063A4F] to-[#124458] text-[#F9FBFD] hover:from-[#124458] to-[#063A4F] rounded-md px-6 md:px-8 py-2 md:py-3 shadow-md hover:shadow-lg hover:scale-105 transition-all text-base md:text-lg">Logout</button>
-            ) : (
-              <>
-                <Link to="/" className="btn bg-gradient-to-r from-[#063A4F] to-[#124458] text-[#F9FBFD] hover:from-[#124458] to-[#063A4F] rounded-md px-6 md:px-8 py-2 md:py-3 shadow-md hover:shadow-lg hover:scale-105 transition-all text-base md:text-lg">Login</Link>
-                <Link to="/register" className="btn bg-gradient-to-r from-[#F0AA22] to-[#F05822] text-[#F9FBFD] hover:from-[#F05822] to-[#F0AA22] rounded-md px-6 md:px-8 py-2 md:py-3 shadow-md hover:shadow-lg hover:scale-105 transition-all text-base md:text-lg">Get Started</Link>
-              </>
-            )}
-          </div>
+          
 
           {/* Mobile Trigger */}
           <button onClick={() => setIsMenuOpen(true)} className="md:hidden text-[#F9FBFD]">
@@ -76,17 +57,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <li><Link to="/profile" onClick={() => setIsMenuOpen(false)} className="block hover:text-[#FDB515] transition">Profile</Link></li>
             <li><Link to="/payment" onClick={() => setIsMenuOpen(false)} className="block hover:text-[#FDB515] transition">Pay</Link></li>
             {isAdmin && <li><Link to="/admin" onClick={() => setIsMenuOpen(false)} className="block text-[#FDB515] font-bold hover:text-[#F05822] transition">Admin Panel</Link></li>}
+          <li><Link to="/terms" className="hover:text-[#FDB515] transition">Terms</Link></li>
+              <li><Link to="/privacy" className="hover:text-[#FDB515] transition">Privacy</Link></li>
           </ul>
-          <div className="mt-12 space-y-4">
-            {user ? (
-              <button onClick={() => { logout(); setIsMenuOpen(false); }} className="w-full btn bg-gradient-to-r from-[#063A4F] to-[#124458] text-[#F9FBFD] hover:from-[#124458] to-[#063A4F] rounded-md py-4 text-xl shadow-md hover:shadow-lg hover:scale-105 transition-all">Logout</button>
-            ) : (
-              <>
-                <Link to="/" onClick={() => setIsMenuOpen(false)} className="w-full block btn bg-gradient-to-r from-[#063A4F] to-[#124458] text-[#F9FBFD] hover:from-[#124458] to-[#063A4F] rounded-md py-4 text-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center">Login</Link>
-                <Link to="/register" onClick={() => setIsMenuOpen(false)} className="w-full block btn bg-gradient-to-r from-[#F0AA22] to-[#F05822] text-[#F9FBFD] hover:from-[#F05822] to-[#F0AA22] rounded-md py-4 text-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center">Get Started</Link>
-              </>
-            )}
+          <div className="container max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 font-oxygen text-sm md:text-base">
+          <div>
+            
+              <h4 className="text-2xl md:text-3xl font-rubik font-bold bg-gradient-to-r from-[#00B8C2] to-[#b90fabff] bg-clip-text text-transparent mb-4">SwiftPay</h4>           
           </div>
+            <h4 className="font-rubik font-bold mb-4 text-lg md:text-xl">Community</h4>
+            
+        
+          
+            <h4 className="font-rubik font-bold mb-4 text-lg md:text-xl">Legal</h4>
+        </div>
+        <div className="mt-8 text-center text-sm md:text-base text-[#F9FBFD]/70 font-oxygen">
+                       <h2 className="text-2xl md:text-3xl font-rubik font-bold bg-gradient-to-r from-[#00B8C2] to-[#b90fabff] bg-clip-text text-transparent mb-4"> © 2026 SwiftPay by HonTech. All rights reserved.</h2>
+        </div>
         </motion.div>
       )}
 
@@ -94,32 +81,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main className="relative z-10 flex-grow container max-w-5xl lg:max-w-7xl mx-auto px-4 py-12 md:py-16 lg:py-20 flex flex-col items-center">
         {children}
       </main>
-
-      {/* FOOTER – Visibility: white text on navy bg */}
-      <footer className="relative z-10 bg-[#063A4F]/90 text-[#F9FBFD] py-12 mt-auto">
-        <div className="container max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 font-oxygen text-sm md:text-base">
-          <div>
-            
-              <h1 className="text-2xl md:text-3xl font-rubik font-bold bg-gradient-to-r from-[#00B8C2] to-[#b90fabff] bg-clip-text text-transparent mb-4">SwiftPay</h1>
-            
-          </div>
-          
-          <div>
-            <h4 className="font-rubik font-bold mb-4 text-lg md:text-xl">Community</h4>
-            
-          </div>
-          <div>
-            <h4 className="font-rubik font-bold mb-4 text-lg md:text-xl">Legal</h4>
-            <ul className="space-y-2 md:space-y-3">
-              <li><Link to="/terms" className="hover:text-[#FDB515] transition">Terms</Link></li>
-              <li><Link to="/privacy" className="hover:text-[#FDB515] transition">Privacy</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="mt-8 text-center text-sm md:text-base text-[#F9FBFD]/70 font-oxygen">
-          © 2026 SwiftPay by HonTech. All rights reserved.
-        </div>
-      </footer>
     </div>
   );
 }
