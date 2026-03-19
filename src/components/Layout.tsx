@@ -21,10 +21,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         className="relative z-20 bg-[#F9FBFD]/5 backdrop-blur-md border-b border-[#063A4F]/10 shadow-md py-4 px-4 md:px-12 lg:px-16"
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/">
-            <h1 className="text-3xl md:text-5xl font-rubik font-bold bg-gradient-to-r from-[#00B8C2] to-[#FDB515] bg-clip-text text-transparent">SwiftPay</h1>
-          </Link>
+        
+          
           {/* Actions – Desktop: fine buttons with gradients/shadows */}
           
 
