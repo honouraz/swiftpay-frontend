@@ -21,6 +21,7 @@ const PayForSomeone: React.FC = () => {
     phone: "",
     email: "",
     dueId: "",
+    userId: "",
     level: "100",
   });
 
@@ -56,6 +57,7 @@ const PayForSomeone: React.FC = () => {
       const res = await API.post("/payments/flutterwave/initialize", {
   email: form.email || "temp@swiftpay.com",
   dueId: form.dueId,
+  userId: form.userId,  // optional, can be empty for now
   level: form.level,
   name: form.fullName,
   matric: form.matricNumber,
@@ -80,7 +82,7 @@ baseAmount: baseAmount
       <input type="text" placeholder="Matric Number" required value={form.matricNumber} onChange={e => setForm({ ...form, matricNumber: e.target.value })} className="w-full px-6 py-4 bg-[#124458] rounded-xl text-white" />
       <select required value={form.department} onChange={e => setForm({ ...form, department: e.target.value })} className="w-full px-6 py-4 bg-[#124458] rounded-xl text-white">
         <option value="">Select Department</option>
-        {["Computer Science", "Microbiology", "Physics And Electronics", "Industrial Chemistry", "Mathematics", "Statistics", "Plant Science and Biotechnology", "Biochemistry", "SLT", "Public Health", "Health Information Management"].map(dept => (
+        {["Computer Science", "Microbiology", "Physics With Electronics", "Industrial Chemistry", "Mathematics", "Statistics", "Plant Science and Biotechnology","Data Science", "Industrial Mathematics", "Biochemistry", "SLT", "Public Health", "Health Information Management"].map(dept => (
           <option key={dept} value={dept}>{dept}</option>
         ))}
       </select>
