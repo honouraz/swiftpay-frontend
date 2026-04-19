@@ -36,7 +36,7 @@ const VerifyPayment: React.FC = () => {
   }
     const fetchPayment = async () => {
       try {
-        const res = await API.get(`/payments/verify/${reference}`);
+        const res = await API.get(`/payments/verify/:reference`);
         setPayment(res.data.payment);
       } catch (err: any) {
         setError(err.response?.data?.message || "Invalid or expired reference");
